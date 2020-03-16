@@ -8,22 +8,19 @@ conf = read_csv(here::here('data/time_series_19-covid-Confirmed.csv'))
 
 last_date = names(conf) %>% tail(1)
 by_country = conf %>% 
-  select(-`Province/State`, -Lat, -Long, 
-         Country=`Country/Region`) %>% 
+  rename(Country=`Country/Region`) %>% 
   mutate(Country=recode(Country, 
                         `Korea, South`='South Korea',
                         US='United States')) %>% 
+  mutate(Country = 
+           if_else(!is.na(`Province/State`) & 
+                     `Province/State`=='Hong Kong', 'Hong Kong', Country)) %>% 
+  select(-`Province/State`, -Lat, -Long) %>% 
   group_by(Country) %>% 
   summarize_all(sum) %>% 
   filter(.data[[last_date]] >= 100) %>% 
   pivot_longer(-Country, names_to='Date', values_to='Count') %>% 
   mutate(Date=mdy(Date))
-
-by_country %>% 
-  filter(Count>0) %>% 
-  ggplot(aes(Date, Count, color=Country)) +
-  geom_line() +
-  scale_y_log10()
 
 # For each country, make a data series that
 # starts at 100 cases
@@ -45,19 +42,12 @@ hundreds = by_country %>%
 # How many countries?
 length(unique(hundreds$Country))
 
-# Leave China out of it, and only countries with 5 days
+# Only countries with >5 days >= 100
 to_plot = hundreds %>% 
-  filter(!Country %in% c('China', 'Cruise Ship'))
-
-p = ggplot(to_plot, aes(Day, Count, color=Country)) +
-  geom_line(size=1) +
-  scale_y_log10() +
-  silgelib::theme_plex()
-plotly::ggplotly(p)
+  filter(!Country %in% c('Cruise Ship'),
+         NumDays>5)
 
 library(gghighlight)
-to_plot = to_plot %>% 
-  filter(NumDays>5)
 
 ggplot(to_plot, aes(Day, Count, color=Country)) +
   geom_line(size=1) +
