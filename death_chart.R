@@ -45,11 +45,11 @@ length(unique(death_by_day$Country))
 # Only countries with >5 days >= min_death_cases
 to_plot = death_by_day %>% 
   filter(!Country %in% c('Cruise Ship'),
-         NumDays>5)
+         NumDays>=5)
 
 library(gghighlight)
 
-ggplot(to_plot, aes(Day, Count, color=Country)) +
+death_chart = ggplot(to_plot, aes(Day, Count, color=Country)) +
   geom_line(size=1) +
 #  geom_abline(slope=1/8, intercept=log10(min_death_cases)) +
   gghighlight(max(Count) > 20, 
@@ -65,7 +65,6 @@ ggplot(to_plot, aes(Day, Count, color=Country)) +
                          'by number of days since {min_death_cases}th case'),
        caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')) +
-  facet_wrap(~Country, strip.position='bottom') +
+  facet_wrap(~Country, strip.position='bottom', ncol=4) +
   silgelib::theme_plex() +
   theme(panel.spacing.y=unit(1, 'lines'))
-

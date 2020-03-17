@@ -54,7 +54,7 @@ to_plot = affected %>%
 
 library(gghighlight)
 
-ggplot(to_plot, aes(Day, Count, color=State)) +
+growth_chart_us = ggplot(to_plot, aes(Day, Count, color=State)) +
   geom_line(size=1) +
 #  geom_abline(slope=1/8, intercept=log10(min_cases)) +
   gghighlight(max(Count) > 20, 
@@ -70,7 +70,6 @@ ggplot(to_plot, aes(Day, Count, color=State)) +
                          'by number of days since {min_cases}th case'),
        caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')) +
-  facet_wrap(~State, strip.position='bottom') +
+  facet_wrap(~State, strip.position='bottom', ncol=5) +
   silgelib::theme_plex() +
   theme(panel.spacing.y=unit(1, 'lines'))
-

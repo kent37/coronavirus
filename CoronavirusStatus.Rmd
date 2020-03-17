@@ -1,0 +1,69 @@
+---
+title: "Coronavirus Status"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r parameters, echo=FALSE,include=FALSE,message=FALSE}
+knitr::opts_chunk$set(echo=FALSE,fig.width=10, fig.height=8, comment=NA, warning=FALSE, message=FALSE)
+```
+
+## {.tabset}
+
+### Cases by country
+
+```{r growth}
+source('growth_chart.R')
+nrows = ceiling(length(unique(to_plot$Country))/4)
+```
+
+```{r growth_chart, fig.height=nrows*2}
+print(growth_chart)
+```
+
+### Deaths by country
+
+```{r deaths}
+source('death_chart.R')
+nrows = ceiling(length(unique(to_plot$Country))/4)
+```
+
+```{r death_chart, fig.height=nrows*2+0.5}
+print(death_chart)
+```
+
+### Cases by US states
+
+```{r growth_us}
+source('growth_chart_us_states.R')
+nrows = ceiling(length(unique(to_plot$State))/5)
+```
+
+```{r growth_chart_us, fig.height=nrows*1.75+0.5}
+print(growth_chart_us)
+```
+
+### About
+
+<big>
+All data is from the Johns Hopkins Center for Systems Science and Engineering
+GitHub repository
+at https://github.com/CSSEGISandData/COVID-19.
+
+The chart style was inspired by this 
+[Financial Times article](https://www.ft.com/content/a26fbf7e-48f8-11ea-aeb3-955839e06441) which is unfortunately behind a paywall.
+
+The charts show all countries or states where the number of cases or deaths
+has been greater than
+the indicated threshold for five days or more.
+
+Data analysis and visualization by Kent Johnson. 
+[GitHub source](https://github.com/kent37/coronavirus)
+
+</big>
+
+<small>Copyright `r format(Sys.Date(), '%Y')` Kent S Johnson
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+  <img alt="Creative Commons License" style="border-width:0;vertical-align:middle;display:inline" 
+  src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" target="_blank"/></a>
+  <span style='float:right;font-style: italic;'>`r Sys.Date()`</span></small>
