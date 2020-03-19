@@ -8,7 +8,11 @@ library(deSolve)
 # Data
 consolidate_us = function(df, values_to) {
   df %>% 
-  filter(`Country/Region`=='US') %>% 
+  filter(`Country/Region`=='US',
+         # Cruise ships should have their own model, they are
+         # not part of the general population
+        !`Province/State` %in% c('Diamond Princess', "Grand Princess")
+        ) %>% 
   select(-`Country/Region`, -`Province/State`, -Lat, -Long) %>% 
   summarize_all(sum) %>% 
   pivot_longer(everything(), names_to='Date', values_to=values_to)
@@ -27,12 +31,18 @@ all_us = reduce(list(conf_us, deaths_us, recovered_us),
   mutate(Removed=Deaths+Recovered, 
          Infected=Cases-Removed)
 
+# The US data is pretty much flat until 2/28/20. Why?
+# Take them out
+last = which(all_us$Date=='2/28/20') - 1
+all_us = all_us[-seq_len(last),]
+
 # Model
 N = 329403072 # US population from https://www.census.gov/popclock/
 Infected = all_us$Infected
 Removed = all_us$Removed
 Day = seq_along(Infected)
 
+#### SIR model ####
 SIR <- function(time, state, parameters) {
   par <- as.list(c(state, parameters))
   with(par, {
@@ -43,7 +53,7 @@ SIR <- function(time, state, parameters) {
     })
 }
 
-init <- c(S = N-Infected[1], I = Infected[1], R = 0)
+init <- c(S = N-Infected[1], I = Infected[1], R = Removed[1])
 RSS <- function(parameters) {
   names(parameters) <- c("beta", "gamma")
   out <- ode(y = init, times = Day, func = SIR, parms = parameters)
@@ -52,14 +62,12 @@ RSS <- function(parameters) {
   sum((Infected - I_hat)^2)
 }
  
-Opt <- optim(c(0.5, 0.5), RSS, method = "L-BFGS-B", lower = c(0, 0), upper = c(1, 1)) # optimize with some sensible conditions
+Opt <- optim(c(0.5, 0.5), RSS, method = "Nelder", 
+             #lower = c(0, 0), upper = c(1, 1),
+             control=list(trace=1, maxit=200)) # optimize with some sensible conditions
 Opt$message
-## [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
  
-Opt_par <- setNames(Opt$par, c("beta", "gamma"))
-Opt_par
-##      beta     gamma 
-## 0.6746089 0.3253912
+(Opt_par <- setNames(Opt$par, c("beta", "gamma")))
  
 t <- 1:200 # time in days
 fit <- data.frame(ode(y = init, times = t, func = SIR, parms = Opt_par))
@@ -67,15 +75,13 @@ col <- 1:3 # colour
  
 matplot(fit$time, fit[ , 3:4], type = "l", xlab = "Day", ylab = "Number of subjects", lwd = 2, lty = 1, col = col[2:3])
 matplot(fit$time, fit[ , 2:4], type = "l", xlab = "Day", ylab = "Number of subjects", lwd = 2, lty = 1, col = col, log = "y")
-## Warning in xy.coords(x, y, xlabel, ylabel, log = log): 1 y value <= 0
-## omitted from logarithmic plot
- 
+
 points(Day, Infected)
 points(Day, Removed)
 legend("bottomright", c("Susceptibles", "Infecteds", "Recovereds"), lty = 1, lwd = 2, col = col, inset = 0.05)
-title("SIR model 2019-nCoV China", outer = TRUE, line = -2)
+title("SIR model 2019-nCoV US", outer = TRUE, line = -2)
 
-# SEIR model without vitals
+#### SEIR model without vitals ####
 # https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SEIR_model
 SEIR <- function(time, state, parameters) {
   par <- as.list(c(state, parameters))
@@ -88,7 +94,7 @@ SEIR <- function(time, state, parameters) {
     })
 }
 
-init <- c(S = N-Infected[1], E=0, I = Infected[1], R = 0)
+init <- c(S = N-Infected[1], E=0, I = Infected[1], R = Removed[1])
 RSS <- function(parameters) {
   names(parameters) <- c("alpha", "beta", "gamma")
   out <- ode(y = init, times = Day, func = SEIR, parms = parameters)
@@ -97,13 +103,12 @@ RSS <- function(parameters) {
   sum((Infected - I_hat)^2 + (Removed-R_hat)^2)
 }
  
-Opt <- optim(c(0.5, 0.5, 0.5), RSS, method = "L-BFGS-B", 
-             lower = c(0, 0), upper = c(1, 1),
-             control=list(trace=2, maxit=200)
+Opt <- optim(c(0.5, 0.5, 0.5), RSS, method = "Nelder", 
+             #lower = c(0, 0, 0), upper = c(10, 1, 1),
+             control=list(trace=1, maxit=1000)
              ) # optimize with some sensible conditions
 
 Opt$message
-## [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
  
 (Opt_par <- setNames(Opt$par, c("alpha", "beta", "gamma")))
 
