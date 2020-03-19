@@ -25,7 +25,7 @@ by_state = conf %>%
   pivot_longer(-State, names_to='Date', values_to='Count') %>% 
   mutate(Date=mdy(Date))
 
-# For each country, make a data series that
+# For each state, make a data series that
 # starts at min_cases cases
 filter_cases = function(df) {
   df %>% 
