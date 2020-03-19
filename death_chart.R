@@ -68,3 +68,19 @@ death_chart = ggplot(to_plot, aes(Day, Count, color=Country)) +
   facet_wrap(~Country, strip.position='bottom', ncol=4) +
   silgelib::theme_plex() +
   theme(panel.spacing.y=unit(1, 'lines'))
+
+totals_only = death_by_country %>% 
+  filter(Date==mdy(last_date), Count >= min_death_cases) %>% 
+  mutate(Country=fct_reorder(Country, Count))
+
+death_totals = ggplot(totals_only, aes(Count, Country)) +
+  geom_segment(aes(xend=min_death_cases, yend=Country), color='gray10', size=0.1) +
+  geom_point(color='red') +
+  scale_x_log10(labels=scales::comma) +
+  labs(x='Reported deaths (log scale)', y='',
+       title='Reported coronavirus deaths by country',
+       subtitle=str_glue('Showing countries with at least {min_death_cases} deaths'),
+       caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
+                        'https://github.com/CSSEGISandData/COVID-19')) +
+  silgelib::theme_plex() +
+  theme(panel.grid=element_blank())

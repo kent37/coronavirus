@@ -2,6 +2,7 @@
 
 library(tidyverse)
 library(lubridate)
+library(gghighlight)
 
 conf = read_csv(here::here('data/time_series_19-covid-Confirmed.csv'))
 
@@ -52,8 +53,6 @@ to_plot = affected %>%
   filter(!State %in% c('Diamond Princess', "Grand Princess"),
          NumDays>=min_days)
 
-library(gghighlight)
-
 growth_chart_us = ggplot(to_plot, aes(Day, Count, color=State)) +
   geom_line(size=1) +
 #  geom_abline(slope=1/8, intercept=log10(min_cases)) +
@@ -70,6 +69,22 @@ growth_chart_us = ggplot(to_plot, aes(Day, Count, color=State)) +
                          'by number of days since {min_cases}th case'),
        caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')) +
-  facet_wrap(~State, strip.position='bottom', ncol=5) +
+  facet_wrap(~State, strip.position='bottom', ncol=4) +
   silgelib::theme_plex() +
   theme(panel.spacing.y=unit(1, 'lines'))
+
+totals_only = by_state %>% 
+  filter(Date==mdy(last_date), Count >= min_cases) %>% 
+  mutate(State=fct_reorder(State, Count))
+
+growth_us_totals = ggplot(totals_only, aes(Count, State)) +
+  geom_segment(aes(xend=min_cases, yend=State), color='gray10', size=0.1) +
+  geom_point(color='red') +
+  scale_x_log10(labels=scales::comma) +
+  labs(x='Reported cases (log scale)', y='',
+       title='Reported coronavirus cases by US state',
+       subtitle=str_glue('Showing states with at least {min_cases} cases'),
+       caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
+                        'https://github.com/CSSEGISandData/COVID-19')) +
+  silgelib::theme_plex() +
+  theme(panel.grid=element_blank())

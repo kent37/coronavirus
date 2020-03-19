@@ -8,7 +8,7 @@ output: html_document
 knitr::opts_chunk$set(echo=FALSE,fig.width=10, fig.height=8, comment=NA, warning=FALSE, message=FALSE)
 ```
 
-## {.tabset}
+## {.tabset .tabset-pills}
 
 ### Cases by country
 
@@ -17,8 +17,18 @@ source('growth_chart.R')
 nrows = ceiling(length(unique(to_plot$Country))/4)
 ```
 
+#### {.tabset}
+
+##### Growth
+
 ```{r growth_chart, fig.height=nrows*2}
 print(growth_chart)
+```
+
+##### Totals
+
+```{r growth_totals, fig.height=nrows}
+print(growth_totals)
 ```
 
 ### Deaths by country
@@ -28,19 +38,39 @@ source('death_chart.R')
 nrows = ceiling(length(unique(to_plot$Country))/4)
 ```
 
+#### {.tabset}
+
+##### Growth
+
 ```{r death_chart, fig.height=nrows*2+0.5}
 print(death_chart)
+```
+
+##### Totals
+
+```{r death_totals, fig.height=nrows}
+print(death_totals)
 ```
 
 ### Cases by US states
 
 ```{r growth_us}
 source('growth_chart_us_states.R')
-nrows = ceiling(length(unique(to_plot$State))/5)
+nrows = ceiling(length(unique(to_plot$State))/4)
 ```
 
-```{r growth_chart_us, fig.height=nrows*1.75+0.5}
+#### {.tabset}
+
+##### Growth
+
+```{r growth_chart_us, fig.height=nrows*2+0.5}
 print(growth_chart_us)
+```
+
+##### Totals
+
+```{r growth_us_totals, fig.height=nrows}
+print(growth_us_totals)
 ```
 
 ### About

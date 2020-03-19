@@ -2,6 +2,7 @@
 
 library(tidyverse)
 library(lubridate)
+library(gghighlight)
 
 conf = read_csv(here::here('data/time_series_19-covid-Confirmed.csv'))
 
@@ -47,8 +48,6 @@ to_plot = hundreds %>%
   filter(!Country %in% c('Cruise Ship'),
          NumDays>=5)
 
-library(gghighlight)
-
 growth_chart = ggplot(to_plot, aes(Day, Count, color=Country)) +
   geom_line(size=1) +
 #  geom_abline(slope=1/8, intercept=log10(min_country_cases)) +
@@ -68,3 +67,19 @@ growth_chart = ggplot(to_plot, aes(Day, Count, color=Country)) +
   facet_wrap(~Country, strip.position='bottom', ncol=4) +
   silgelib::theme_plex() +
   theme(panel.spacing.y=unit(1, 'lines'))
+
+totals_only = by_country %>% 
+  filter(Date==mdy(last_date), Count >= min_country_cases) %>% 
+  mutate(Country=fct_reorder(Country, Count))
+
+growth_totals = ggplot(totals_only, aes(Count, Country)) +
+  geom_segment(aes(xend=100, yend=Country), color='gray10', size=0.1) +
+  geom_point(color='red') +
+  scale_x_log10(labels=scales::comma) +
+  labs(x='Reported cases (log scale)', y='',
+       title='Reported coronavirus cases by country',
+       subtitle=str_glue('Showing countries with at least {min_country_cases} cases'),
+       caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
+                        'https://github.com/CSSEGISandData/COVID-19')) +
+  silgelib::theme_plex() +
+  theme(panel.grid=element_blank())
