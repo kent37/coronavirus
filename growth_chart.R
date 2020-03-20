@@ -78,7 +78,7 @@ growth_totals = ggplot(totals_only, aes(Count, Country)) +
   scale_x_log10(labels=scales::comma) +
   labs(x='Reported cases (log scale)', y='',
        title='Reported coronavirus cases by country',
-       subtitle=str_glue('Showing countries with at least {min_country_cases} cases'),
+       subtitle=str_glue('Showing countries with {min_country_cases} or more cases'),
        caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')) +
   silgelib::theme_plex() +

@@ -4,12 +4,12 @@ library(tidyverse)
 library(lubridate)
 library(gghighlight)
 
-conf = read_csv(here::here('data/time_series_19-covid-Confirmed.csv'))
+death = read_csv(here::here('data/time_series_19-covid-Deaths.csv'))
 
-min_cases = 10
-last_date = names(conf) %>% tail(1)
+min_death_cases = 5
+last_date = names(death) %>% tail(1)
 state_lookup = state.name %>% set_names(state.abb)
-by_state = conf %>% 
+death_by_state = death %>% 
   filter(`Country/Region`=='US') %>% 
   rename(State=`Province/State`) %>%  
   select(-`Country/Region`, -Lat, -Long) %>% 
@@ -22,20 +22,20 @@ by_state = conf %>%
   select(-County, -State_abbr) %>% 
   group_by(State) %>% 
   summarize_all(sum) %>% 
-  filter(.data[[last_date]] >= min_cases) %>% 
+  filter(.data[[last_date]] >= min_death_cases) %>% 
   pivot_longer(-State, names_to='Date', values_to='Count') %>% 
   mutate(Date=mdy(Date))
 
 # For each state, make a data series that
-# starts at min_cases cases
+# starts at min_death_cases cases
 filter_cases = function(df) {
   df %>% 
-    filter(Count >= min_cases) %>% 
+    filter(Count >= min_death_cases) %>% 
     select(-Date) %>% 
     mutate(Day=row_number(Count))
 }
 
-affected = by_state %>% 
+affected = death_by_state %>% 
   group_nest(State) %>% 
   mutate(data=map(data, filter_cases)) %>% 
   unnest(data) %>% 
@@ -43,47 +43,47 @@ affected = by_state %>%
   mutate(NumDays=max(Day)) %>% 
   ungroup()
 
-# How many countries?
+# How many states?
 length(unique(affected$State))
 
 min_days = 5
-# Only countries with >=min_days days >= min_cases
+# Only states with >=min_days days >= min_death_cases
 # No cruise ships
 to_plot = affected %>% 
   filter(!State %in% c('Diamond Princess', "Grand Princess"),
          NumDays>=min_days)
 
-growth_chart_us = ggplot(to_plot, aes(Day, Count, color=State)) +
+death_chart_us = ggplot(to_plot, aes(Day, Count, color=State)) +
   geom_line(size=1) +
-#  geom_abline(slope=1/8, intercept=log10(min_cases)) +
-  gghighlight(max(Count) > 20, 
+#  geom_abline(slope=1/8, intercept=log10(min_death_cases)) +
+  gghighlight(max(Count) > min_death_cases, 
               unhighlighted_params=list(size=0.5),
               use_direct_label=FALSE) +
   scale_x_continuous(minor_breaks=NULL) +
-  scale_y_log10(labels=scales::comma) +
+  scale_y_log10(labels=partial(scales::comma, accuracy=1)) +
   scale_color_manual(values=rep('red', length(unique(to_plot$State)))) +
   guides(color='none') +
-  labs(x=str_glue('Number of days since {min_cases}th case'), y='',
-       title='Coronavirus cases by state',
-       subtitle=str_glue('Cumulative number of cases, ',
-                         'by number of days since {min_cases}th case'),
+  labs(x=str_glue('Number of days since {min_death_cases}th case'), y='',
+       title='Coronavirus deaths by state',
+       subtitle=str_glue('Cumulative number of deaths, ',
+                         'by number of days since {min_death_cases}th death'),
        caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')) +
   facet_wrap(~State, strip.position='bottom', ncol=4) +
   silgelib::theme_plex() +
   theme(panel.spacing.y=unit(1, 'lines'))
 
-totals_only = by_state %>% 
-  filter(Date==mdy(last_date), Count >= min_cases) %>% 
+totals_only = death_by_state %>% 
+  filter(Date==mdy(last_date), Count >= min_death_cases) %>% 
   mutate(State=fct_reorder(State, Count))
 
-growth_us_totals = ggplot(totals_only, aes(Count, State)) +
-  geom_segment(aes(xend=min_cases, yend=State), color='gray10', size=0.1) +
+death_us_totals = ggplot(totals_only, aes(Count, State)) +
+  geom_segment(aes(xend=min_death_cases, yend=State), color='gray10', size=0.1) +
   geom_point(color='red') +
-  scale_x_log10(labels=scales::comma) +
-  labs(x='Reported cases (log scale)', y='',
-       title='Reported coronavirus cases by US state',
-       subtitle=str_glue('Showing states with {min_cases} or more cases'),
+  scale_x_log10(labels=partial(scales::comma, accuracy=1)) +
+  labs(x='Reported deaths (log scale)', y='',
+       title='Reported coronavirus deaths by US state',
+       subtitle=str_glue('Showing states with {min_death_cases} or more deaths'),
        caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')) +
   silgelib::theme_plex() +

@@ -62,7 +62,7 @@ death_chart = ggplot(to_plot, aes(Day, Count, color=Country)) +
   labs(x=str_glue('Number of days since {min_death_cases}th death'), y='',
        title='Coronavirus deaths by country',
        subtitle=str_glue('Cumulative number of deaths, ',
-                         'by number of days since {min_death_cases}th case'),
+                         'by number of days since {min_death_cases}th death'),
        caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')) +
   facet_wrap(~Country, strip.position='bottom', ncol=4) +
@@ -78,9 +78,9 @@ death_totals = ggplot(totals_only, aes(Count, Country)) +
   geom_point(color='red') +
   scale_x_log10(labels=scales::comma) +
   labs(x='Reported deaths (log scale)', y='',
-       title='Reported coronavirus deaths by country',
-       subtitle=str_glue('Showing countries with at least {min_death_cases} deaths'),
-       caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
-                        'https://github.com/CSSEGISandData/COVID-19')) +
+    title='Reported coronavirus deaths by country',
+    subtitle=str_glue('Showing countries with {min_death_cases} or more deaths'),
+    caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
+                     'https://github.com/CSSEGISandData/COVID-19')) +
   silgelib::theme_plex() +
   theme(panel.grid=element_blank())
