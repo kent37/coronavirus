@@ -78,6 +78,7 @@ print(growth_us_totals)
 ```{r death_us}
 source('death_chart_us_states.R')
 nrows = ceiling(length(unique(to_plot$State))/4)
+death_rows = ceiling(length(unique(totals_only$State))/4)
 ```
 
 #### {.tabset}
@@ -90,7 +91,7 @@ print(death_chart_us)
 
 ##### Totals
 
-```{r death_us_totals, fig.height=nrows}
+```{r death_us_totals, fig.height=death_rows+0.5}
 print(death_us_totals)
 ```
 
