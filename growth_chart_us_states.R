@@ -55,7 +55,12 @@ to_plot = affected %>%
 
 growth_chart_us = ggplot(to_plot, aes(Day, Count, color=State)) +
   geom_line(size=1) +
-#  geom_abline(slope=1/8, intercept=log10(min_cases)) +
+  # geom_abline(slope=log10(sqrt(2)), 
+  #             intercept=log10(min_cases),
+  #             color='red', alpha=0.5, linetype=3, size=0.5) +
+  # geom_abline(slope=log10(2^(1/3)), 
+  #             intercept=log10(min_cases),
+  #             color='blue', alpha=0.5, linetype=3, size=0.5) +
   gghighlight(max(Count) > 20, 
               unhighlighted_params=list(size=0.5),
               use_direct_label=FALSE) +
