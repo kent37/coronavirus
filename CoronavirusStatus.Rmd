@@ -1,5 +1,5 @@
 ---
-title: "Coronavirus Status"
+title: "Coronavirus Dashboard"
 date: '`r Sys.Date()`'
 output: html_document
 ---
@@ -14,20 +14,26 @@ knitr::opts_chunk$set(echo=FALSE,fig.width=10, fig.height=8, comment=NA, warning
 
 ```{r growth}
 source('growth_chart.R')
-nrows = ceiling(length(unique(to_plot$Country))/4)
+nrows = ceiling(length(unique(to_plot_country$Country))/4)
 ```
 
 #### {.tabset}
 
+##### Selected
+
+```{r selected_country_plot, fig.height=6, fig.width=8}
+print(selected_country_plot)
+```
+
 ##### Growth
 
-```{r growth_chart, fig.height=nrows*2}
+```{r growth_chart, fig.height=nrows*2.2+0.5}
 print(growth_chart)
 ```
 
 ##### Totals
 
-```{r growth_totals, fig.height=nrows}
+```{r growth_totals, fig.height=nrows*1.2+0.5}
 print(growth_totals)
 ```
 
@@ -35,20 +41,26 @@ print(growth_totals)
 
 ```{r deaths}
 source('death_chart.R')
-nrows = ceiling(length(unique(to_plot$Country))/4)
+nrows = ceiling(length(unique(to_plot_deaths$Country))/4)
 ```
 
 #### {.tabset}
 
+##### Selected
+
+```{r selected_death_plot, fig.height=6, fig.width=8}
+print(selected_death_plot)
+```
+
 ##### Growth
 
-```{r death_chart, fig.height=nrows*2+0.5}
+```{r death_chart, fig.height=nrows*2.2+0.5}
 print(death_chart)
 ```
 
 ##### Totals
 
-```{r death_totals, fig.height=nrows}
+```{r death_totals, fig.height=nrows*1.2+0.5}
 print(death_totals)
 ```
 
@@ -56,14 +68,20 @@ print(death_totals)
 
 ```{r growth_us}
 source('growth_chart_us_states.R')
-nrows = ceiling(length(unique(to_plot$State))/4)
+nrows = ceiling(length(unique(to_plot_us$State))/4)
 ```
 
 #### {.tabset}
 
+##### Selected
+
+```{r selected_states_plot, fig.height=6, fig.width=8}
+print(selected_states_plot)
+```
+
 ##### Growth
 
-```{r growth_chart_us, fig.height=nrows*2+0.5}
+```{r growth_chart_us, fig.height=nrows*2.2+0.5}
 print(growth_chart_us)
 ```
 
@@ -77,7 +95,7 @@ print(growth_us_totals)
 
 ```{r death_us}
 source('death_chart_us_states.R')
-nrows = ceiling(length(unique(to_plot$State))/4)
+nrows = ceiling(length(unique(to_plot_us_death$State))/4)
 death_rows = ceiling(length(unique(totals_only$State))/4)
 ```
 
@@ -98,12 +116,15 @@ print(death_us_totals)
 ### About
 
 <big>
-All data is from the Johns Hopkins Center for Systems Science and Engineering
+Country data is from the Johns Hopkins Center for Systems Science and Engineering
 GitHub repository
 at https://github.com/CSSEGISandData/COVID-19.
 
+Data for US states is from USAFacts
+https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/.
+
 The chart style was inspired by this 
-[Financial Times article](https://www.ft.com/content/a26fbf7e-48f8-11ea-aeb3-955839e06441) which is unfortunately behind a paywall.
+[Financial Times article](https://www.ft.com/content/a26fbf7e-48f8-11ea-aeb3-955839e06441) which is ~~unfortunately~~ no longer behind a paywall.
 
 The charts show all countries or states where the number of cases or deaths
 has been greater than
