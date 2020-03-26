@@ -31,6 +31,16 @@ all_us = reduce(list(conf_us, deaths_us, recovered_us),
   mutate(Removed=Deaths+Recovered, 
          Infected=Cases-Removed)
 
+# Take a look
+theme_set(silgelib::theme_plex())
+all_us %>% 
+  select(Date, Infected, Recovered, Deaths) %>% 
+  pivot_longer(-Date, names_to='Series', values_to='Count') %>% 
+  ggplot(aes(mdy(Date), Count, color=Series, group=Series)) +
+  geom_line() +
+  scale_x_date(guide = guide_axis(check.overlap = TRUE)) +
+  scale_y_log10()
+
 # The US data is pretty much flat until 2/28/20. Why?
 # Take them out
 last = which(all_us$Date=='2/28/20') - 1
@@ -73,12 +83,12 @@ t <- 1:200 # time in days
 fit <- data.frame(ode(y = init, times = t, func = SIR, parms = Opt_par))
 col <- 1:3 # colour
  
-matplot(fit$time, fit[ , 3:4], type = "l", xlab = "Day", ylab = "Number of subjects", lwd = 2, lty = 1, col = col[2:3])
+matplot(fit$time, fit[ , 2:4], type = "l", xlab = "Day", ylab = "Number of subjects", lwd = 2, lty = 1, col = col)
 matplot(fit$time, fit[ , 2:4], type = "l", xlab = "Day", ylab = "Number of subjects", lwd = 2, lty = 1, col = col, log = "y")
 
 points(Day, Infected)
 points(Day, Removed)
-legend("bottomright", c("Susceptibles", "Infecteds", "Recovereds"), lty = 1, lwd = 2, col = col, inset = 0.05)
+legend("bottomright", c("Susceptible", "Infected", "Removed"), lty = 1, lwd = 2, col = col, inset = 0.05)
 title("SIR model 2019-nCoV US", outer = TRUE, line = -2)
 
 #### SEIR model without vitals ####
@@ -103,7 +113,7 @@ RSS <- function(parameters) {
   sum((Infected - I_hat)^2 + (Removed-R_hat)^2)
 }
  
-Opt <- optim(c(0.5, 0.5, 0.5), RSS, method = "Nelder", 
+Opt <- optim(c(0.5, 0.5, 0.5), RSS, method = "L-BFGS", 
              #lower = c(0, 0, 0), upper = c(10, 1, 1),
              control=list(trace=1, maxit=1000)
              ) # optimize with some sensible conditions
@@ -114,7 +124,7 @@ Opt$message
 
 (R_0 = Opt_par['beta'] / Opt_par['gamma'])
 
-t <- 1:300 # time in days
+t <- 1:200 # time in days
 fit <- data.frame(ode(y = init, times = t, func = SEIR, parms = Opt_par))
 col <- 1:4 # colour
  
@@ -123,5 +133,5 @@ matplot(fit$time, fit[ , 2:5], type = "l", xlab = "Day", ylab = "Number of subje
 
 points(Day, Infected, col=3)
 points(Day, Removed, col=4)
-legend("bottomright", c("Susceptibles","Exposed", "Infecteds", "Removed"), lty = 1, lwd = 2, col = col, inset = 0.05)
+legend("bottomright", c("Susceptible","Exposed", "Infected", "Removed"), lty = 1, lwd = 2, col = col, inset = 0.05)
 title("SEIR model 2019-nCoV US", outer = TRUE, line = -2)
