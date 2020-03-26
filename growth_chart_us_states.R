@@ -108,10 +108,12 @@ growth_us_totals = ggplot(totals_only,
 selected_states = c('New York', 'Massachusetts', 'California', 
                     'Florida', 'Washington', 'Oregon')
 
-selected_states_plot = to_plot_us %>% 
+selected_states_to_plot = to_plot_us %>% 
   filter(State %in% selected_states) %>% 
   group_by(State) %>% 
-  mutate(label=if_else(Day==max(Day), State, NA_character_)) %>% 
+  mutate(label=if_else(Day==max(Day), State, NA_character_))
+
+selected_states_plot = selected_states_to_plot %>% 
   ggplot(aes(Day, Count, color=State, label=label)) +
   geom_line(size=1) +
   geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
@@ -126,3 +128,24 @@ selected_states_plot = to_plot_us %>%
                         'https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/')) +
   silgelib::theme_plex() +
   theme(legend.position='none')
+
+selected_states_daily_plot = selected_states_to_plot %>% 
+  group_by(State) %>% 
+  arrange(Day) %>% 
+  mutate(Daily=c(0, diff(Count))) %>% 
+  ggplot(aes(Day, Daily, fill=State, label=label)) +
+  geom_col() +
+  # geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
+  #                 segment.color = NA, size=3, ) +
+  scale_y_continuous(labels=scales::comma) +
+  scale_color_brewer(palette='Dark2') +
+  facet_wrap(~State, ncol=1, scales='free_y') +
+  labs(x='Reported cases', y='',
+       title='Daily reported coronavirus cases, selected states',
+       subtitle=str_glue('Daily number of cases, ',
+                         'by number of days since {min_cases}th case'),
+       caption=str_glue('Source: USAFacts as of {last_date}\n',
+                        'https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/')) +
+  silgelib::theme_plex() +
+  theme(legend.position='none')
+  

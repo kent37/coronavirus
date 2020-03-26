@@ -98,10 +98,12 @@ growth_totals = ggplot(totals_only,
 selected_countries = c('China', 'United States', 'South Korea', 
              'Italy', 'Spain', 'France', 'Japan', 'United Kingdom')
 
-selected_country_plot = to_plot_country %>% 
+selected_country_to_plot = to_plot_country %>% 
   filter(Country %in% selected_countries) %>% 
   group_by(Country) %>% 
-  mutate(label=if_else(Day==max(Day), Country, NA_character_)) %>% 
+  mutate(label=if_else(Day==max(Day), Country, NA_character_))
+
+selected_country_plot = selected_country_to_plot %>% 
   ggplot(aes(Day, Count, color=Country, label=label)) +
   geom_line(size=1) +
   geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
@@ -110,10 +112,31 @@ selected_country_plot = to_plot_country %>%
   scale_y_continuous(labels=scales::comma) +
   scale_color_brewer(palette='Dark2') +
   labs(x='Reported cases', y='',
-       title='Reported coronavirus cases, selected countries',
+       title='Cumulative reported coronavirus cases, selected countries',
        subtitle=str_glue('Cumulative number of cases, ',
                          'by number of days since {min_country_cases}th case'),
        caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')) +
   silgelib::theme_plex() +
   theme(legend.position='none')
+
+selected_country_daily_plot = selected_country_to_plot %>% 
+  group_by(Country) %>% 
+  arrange(Day) %>% 
+  mutate(Daily=c(0, diff(Count))) %>% 
+  ggplot(aes(Day, Daily, fill=Country, label=label)) +
+  geom_col() +
+  # geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
+  #                 segment.color = NA, size=3, ) +
+  scale_y_continuous(labels=scales::comma) +
+  scale_color_brewer(palette='Dark2') +
+  facet_wrap(~Country, ncol=1, scales='free_y') +
+  labs(x='Reported cases', y='',
+       title='Daily reported coronavirus cases, selected countries',
+       subtitle=str_glue('Daily number of cases, ',
+                         'by number of days since {min_country_cases}th case'),
+       caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
+                        'https://github.com/CSSEGISandData/COVID-19')) +
+  silgelib::theme_plex() +
+  theme(legend.position='none')
+  
