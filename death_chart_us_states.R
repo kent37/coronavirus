@@ -4,7 +4,8 @@ library(tidyverse)
 library(lubridate)
 library(gghighlight)
 
-death_us = read_csv(here::here('data/covid_deaths_usafacts.csv'))
+death_us = read_csv(here::here('data/covid_deaths_usafacts.csv')) %>% 
+  select(-matches('X\\d+')) # Remove extra columns
 
 min_death_cases = 5
 last_date = names(death_us) %>% tail(1)

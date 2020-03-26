@@ -4,7 +4,8 @@ library(tidyverse)
 library(lubridate)
 library(gghighlight)
 
-conf_us = read_csv(here::here('data/covid_confirmed_usafacts.csv'))
+conf_us = read_csv(here::here('data/covid_confirmed_usafacts.csv')) %>% 
+  select(-matches('X\\d+')) # Remove extra columns
 
 min_cases = 10
 last_date = names(conf_us) %>% tail(1)
