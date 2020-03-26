@@ -19,10 +19,18 @@ nrows = ceiling(length(unique(to_plot_country$Country))/4)
 
 #### {.tabset}
 
-##### Selected
+##### Selected {.tabset}
+
+###### Linear
 
 ```{r selected_country_plot, fig.height=6, fig.width=8}
 print(selected_country_plot)
+```
+
+###### Log
+
+```{r selected_country_log_plot, fig.height=6, fig.width=8}
+print(selected_country_log_plot)
 ```
 
 ##### Growth
@@ -46,10 +54,18 @@ nrows = ceiling(length(unique(to_plot_deaths$Country))/4)
 
 #### {.tabset}
 
-##### Selected
+##### Selected {.tabset}
+
+###### Linear
 
 ```{r selected_death_plot, fig.height=6, fig.width=8}
 print(selected_death_plot)
+```
+
+###### Log
+
+```{r selected_death_log_plot, fig.height=6, fig.width=8}
+print(selected_death_log_plot)
 ```
 
 ##### Growth
@@ -73,10 +89,18 @@ nrows = ceiling(length(unique(to_plot_us$State))/4)
 
 #### {.tabset}
 
-##### Selected
+##### Selected {.tabset}
+
+###### Linear
 
 ```{r selected_states_plot, fig.height=6, fig.width=8}
 print(selected_states_plot)
+```
+
+###### Log
+
+```{r selected_states_log_plot, fig.height=6, fig.width=8}
+print(selected_states_log_plot)
 ```
 
 ##### Growth
@@ -100,6 +124,20 @@ death_rows = ceiling(length(unique(totals_only$State))/4)
 ```
 
 #### {.tabset}
+
+##### Selected {.tabset}
+
+###### Linear
+
+```{r selected_us_death_plot, fig.height=6, fig.width=8}
+print(selected_us_death_plot)
+```
+
+###### Log
+
+```{r selected_us_death_log_plot, fig.height=6, fig.width=8}
+print(selected_us_death_log_plot)
+```
 
 ##### Growth
 

@@ -96,3 +96,31 @@ death_us_totals = ggplot(totals_only, aes(Count, State,
                         'https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/')) +
   silgelib::theme_plex() +
   theme(panel.grid=element_blank())
+
+# selected states
+selected_states = c('New York', 'Massachusetts', 'California', 
+                    'Florida', 'Washington', 'Oregon')
+
+selected_us_death_to_plot = to_plot_us_death %>% 
+  filter(State %in% selected_states) %>% 
+  group_by(State) %>% 
+  mutate(label=if_else(Day==max(Day), State, NA_character_))
+
+selected_us_death_base_plot = selected_us_death_to_plot %>% 
+  ggplot(aes(Day, Count, color=State, label=label)) +
+  geom_line(size=1) +
+  geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
+                  segment.color = NA, size=3, show.legend=FALSE) +
+  scale_color_brewer(palette='Dark2') +
+  labs(x='Reported deaths', y='',
+       title='Reported coronavirus deaths by US state',
+       caption=str_glue('Source: USAFacts as of {last_date}\n',
+                        'https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/')) +
+  silgelib::theme_plex() +
+  theme(legend.position='none')
+
+selected_us_death_log_plot = selected_us_death_base_plot +
+  scale_y_log10(labels=scales::comma)
+
+selected_us_death_plot = selected_us_death_base_plot +
+  scale_y_continuous(labels=scales::comma)

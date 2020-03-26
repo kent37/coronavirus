@@ -113,12 +113,11 @@ selected_states_to_plot = to_plot_us %>%
   group_by(State) %>% 
   mutate(label=if_else(Day==max(Day), State, NA_character_))
 
-selected_states_plot = selected_states_to_plot %>% 
+selected_states_base_plot = selected_states_to_plot %>% 
   ggplot(aes(Day, Count, color=State, label=label)) +
   geom_line(size=1) +
   geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
                   segment.color = NA, size=3, show.legend=FALSE) +
-  scale_y_log10(labels=scales::comma) +
   scale_color_brewer(palette='Dark2') +
     labs(x=str_glue('Number of days since {min_cases}th case'), y='',
        title='Coronavirus reported cases by state',
@@ -128,6 +127,12 @@ selected_states_plot = selected_states_to_plot %>%
                         'https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/')) +
   silgelib::theme_plex() +
   theme(legend.position='none')
+
+selected_states_log_plot = selected_states_base_plot +
+  scale_y_log10(labels=scales::comma)
+
+selected_states_plot = selected_states_base_plot +
+  scale_y_continuous(labels=scales::comma)
 
 selected_states_daily_plot = selected_states_to_plot %>% 
   group_by(State) %>% 

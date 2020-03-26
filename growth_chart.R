@@ -103,13 +103,12 @@ selected_country_to_plot = to_plot_country %>%
   group_by(Country) %>% 
   mutate(label=if_else(Day==max(Day), Country, NA_character_))
 
-selected_country_plot = selected_country_to_plot %>% 
+selected_country_base_plot = selected_country_to_plot %>% 
   ggplot(aes(Day, Count, color=Country, label=label)) +
   geom_line(size=1) +
   geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
                   segment.color = NA, size=3, ) +
   #scale_x_continuous(limits=c(0, 40)) +
-  scale_y_continuous(labels=scales::comma) +
   scale_color_brewer(palette='Dark2') +
   labs(x='Reported cases', y='',
        title='Cumulative reported coronavirus cases, selected countries',
@@ -119,6 +118,12 @@ selected_country_plot = selected_country_to_plot %>%
                         'https://github.com/CSSEGISandData/COVID-19')) +
   silgelib::theme_plex() +
   theme(legend.position='none')
+
+selected_country_plot = selected_country_base_plot +
+  scale_y_continuous(labels=scales::comma)
+
+selected_country_log_plot = selected_country_base_plot +
+  scale_y_log10(labels=scales::comma)
 
 selected_country_daily_plot = selected_country_to_plot %>% 
   group_by(Country) %>% 

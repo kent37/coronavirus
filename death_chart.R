@@ -96,7 +96,7 @@ death_totals = ggplot(totals_only,
 selected_countries = c('China', 'United States', 'South Korea', 
              'Italy', 'Spain', 'France', 'United Kingdom')
 
-selected_death_plot = to_plot_deaths %>% 
+selected_death_base_plot = to_plot_deaths %>% 
   filter(Country %in% selected_countries) %>% 
   group_by(Country) %>% 
   mutate(label=if_else(Day==max(Day), Country, NA_character_)) %>% 
@@ -105,7 +105,6 @@ selected_death_plot = to_plot_deaths %>%
   geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
                   segment.color = NA, size=3, ) +
   #scale_x_continuous(limits=c(0, 40)) +
-  scale_y_continuous(labels=scales::comma) +
   scale_color_brewer(palette='Dark2') +
   labs(x='Reported deaths', y='',
        title='Reported coronavirus deaths, selected countries',
@@ -115,3 +114,9 @@ selected_death_plot = to_plot_deaths %>%
                         'https://github.com/CSSEGISandData/COVID-19')) +
   silgelib::theme_plex() +
   theme(legend.position='none')
+
+selected_death_plot = selected_death_base_plot +
+  scale_y_continuous(labels=scales::comma)
+
+selected_death_log_plot = selected_death_base_plot +
+  scale_y_log10(labels=scales::comma)
