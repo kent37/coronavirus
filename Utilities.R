@@ -24,10 +24,27 @@ df %>%
   mutate(Date=mdy(Date))
 }
 
-# Clean state data
-clean_state = function(df, min_cases) {
+# Read and clean state data from covidtracking.com
+state_lookup = state.name %>% set_names(state.abb)
+state_lookup['DC'] = 'District of Columbia'
+state_lookup['AS'] = 'American Samoa'
+state_lookup['GU'] = 'Guam'
+state_lookup['MP'] = 'Northern Mariana Islands'
+state_lookup['PR'] = 'Puerto Rico'
+state_lookup['UM'] = 'Minor Outlying Islands'
+state_lookup['VI'] = 'US Virgin Islands'
+
+read_and_clean_covid_tracking = function() {
+  df = read_csv(here::here('data/covid_tracking_daily.csv'))
+  df %>% 
+    select(Date=date, State=state, Cases=positive, Deaths=death) %>% 
+    mutate(Date=as.Date(strptime(Date, '%Y%m%d')),
+           State=state_lookup[State])
+}
+
+# Clean state data from USA Facts
+clean_usa_facts_state = function(df, min_cases) {
   last_date = names(df) %>% tail(1)
-  state_lookup = state.name %>% set_names(state.abb)
   
   df %>% 
     # filter(`Country/Region`=='US') %>%
@@ -103,8 +120,9 @@ growth_chart_base = function(df, division_name, color) {
 
 totals_chart_base = function(df, division_name, last_date, min_cases) {
   # Compute totals
+  if (is.character(last_date)) last_date=mdy(last_date)
   totals_only = df %>% 
-    filter(Date==mdy(last_date), Count >= min_cases) %>% 
+    filter(Date==last_date, Count >= min_cases) %>% 
     mutate({{division_name}} := fct_reorder({{division_name}}, Count))
 
   ggplot(totals_only, aes(Count, {{division_name}}, 
@@ -160,6 +178,11 @@ death_chart_x = function(min_cases) {
 jhu_credit = function(last_date) {
   str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')
+}
+
+covid_tracking_credit = function(last_date) {
+  str_glue('Source: COVID Tracking Project as of {last_date}\n',
+    'https://covidtracking.com/')
 }
 
 usafacts_credit = function(last_date) {

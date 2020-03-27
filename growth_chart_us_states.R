@@ -1,11 +1,9 @@
 # Growth chart for US states only
 
-conf_us = read_csv(here::here('data/covid_confirmed_usafacts.csv')) %>% 
-  select(-matches('X\\d+')) # Remove extra columns
-
+by_state = read_and_clean_covid_tracking() %>% 
+  select(-Deaths, Count=Cases)
 min_state_cases = 10
-last_date = names(conf_us) %>% tail(1)
-by_state = conf_us %>% clean_state(min_state_cases)
+last_date = max(by_state$Date)
 
 # For each state, make a data series that
 # starts at min_state_cases cases
@@ -25,21 +23,21 @@ growth_chart_us = growth_chart_base(to_plot_us, State, 'darkred') +
   labs(x=case_chart_x(min_state_cases), y='',
        title='Coronavirus reported cases by state',
        subtitle=case_chart_subtitle(min_state_cases),
-       caption=usafacts_credit(last_date))
+       caption=covid_tracking_credit(last_date))
 
 growth_us_totals = totals_chart_base(by_state, State, 
                               last_date, min_state_cases) +
   labs(x='Reported cases (log scale)', y='',
        title='Reported coronavirus cases by US state',
         subtitle=case_chart_subtitle(min_state_cases),
-       caption=usafacts_credit(last_date)) 
+       caption=covid_tracking_credit(last_date)) 
 
 selected_states_base_plot = 
   selected_item_base(to_plot_us, selected_states, State) +
     labs(x=case_chart_x(min_state_cases), y='Reported cases',
        title='Coronavirus reported cases by state',
        subtitle=case_chart_subtitle(min_state_cases),
-       caption=usafacts_credit(last_date))
+       caption=covid_tracking_credit(last_date))
 
 selected_states_log_plot = selected_states_base_plot +
   scale_y_log10(labels=scales::comma)
