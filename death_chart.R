@@ -1,43 +1,14 @@
-# Try to recreate the Financial Times chart
-
-library(tidyverse)
-library(lubridate)
+# Death charts by country
 
 death = read_csv(here::here('data/time_series_covid19_deaths_global.csv'))
 
 min_death_cases = 20
 last_date = names(death) %>% tail(1)
-death_by_country = death %>% 
-  rename(Country=`Country/Region`) %>% 
-  mutate(Country=recode(Country, 
-                        `Korea, South`='South Korea',
-                        US='United States')) %>% 
-  mutate(Country = 
-           if_else(!is.na(`Province/State`) & 
-                     `Province/State`=='Hong Kong', 'Hong Kong', Country)) %>% 
-  select(-`Province/State`, -Lat, -Long) %>% 
-  group_by(Country) %>% 
-  summarize_all(sum) %>% 
-  filter(.data[[last_date]] >= min_death_cases) %>% 
-  pivot_longer(-Country, names_to='Date', values_to='Count') %>% 
-  mutate(Date=mdy(Date))
+death_by_country = death %>% clean_country(min_death_cases)
 
 # For each country, make a data series that
 # starts at min_death_cases cases
-filter_country = function(df) {
-  df %>% 
-    filter(Count >= min_death_cases) %>% 
-    select(-Date) %>% 
-    mutate(Day=row_number(Count))
-}
-
-death_by_day = death_by_country %>% 
-  group_nest(Country) %>% 
-  mutate(data=map(data, filter_country)) %>% 
-  unnest(data) %>% 
-  group_by(Country) %>% 
-  mutate(NumDays=max(Day)) %>% 
-  ungroup()
+death_by_day = by_day_since_min(death_by_country, Country, min_death_cases)
 
 # How many countries?
 length(unique(death_by_day$Country))
@@ -48,72 +19,25 @@ to_plot_deaths = death_by_day %>%
   filter(!Country %in% c('Cruise Ship'),
          NumDays>=min_death_days)
 
-library(gghighlight)
-
-death_chart = ggplot(to_plot_deaths, aes(Day, Count, color=Country)) +
-  geom_line(size=1) +
-#  geom_abline(slope=1/8, intercept=log10(min_death_cases)) +
-  gghighlight(max(Count) > 20, 
-              unhighlighted_params=list(size=0.5),
-              use_direct_label=FALSE) +
-  scale_x_continuous(minor_breaks=NULL) +
-  scale_y_log10(labels=scales::comma) +
-  scale_color_manual(values=rep('darkred', 
-                                length(unique(to_plot_deaths$Country)))) +
-  guides(color='none') +
-  labs(x=str_glue('Number of days since {min_death_cases}th death'), y='',
+death_chart = growth_chart_base(to_plot_deaths, Country, 'darkred') +
+  labs(x=death_chart_x(min_death_cases), y='',
        title='Coronavirus deaths by country',
-       subtitle=str_glue('Cumulative number of deaths, ',
-                         'by number of days since {min_death_cases}th death'),
-       caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
-                        'https://github.com/CSSEGISandData/COVID-19')) +
-  facet_wrap(~Country, strip.position='bottom', ncol=4) +
-  silgelib::theme_plex() +
-  theme(panel.spacing.y=unit(1, 'lines'))
+       subtitle=death_chart_subtitle(min_death_cases),
+       caption=jhu_credit(last_date))
 
-min_death_cases
-totals_only = death_by_country %>% 
-  filter(Date==mdy(last_date), Count >= min_death_cases) %>% 
-  mutate(Country=fct_reorder(Country, Count))
-
-death_totals = ggplot(totals_only, 
-                      aes(Count, Country, label=scales::comma(Count))) +
-  # geom_segment(aes(xend=min_death_cases, yend=Country), 
-  #              color='gray10', size=0.1) +
-  # geom_point(color='red') +
-  geom_col(fill='steelblue') +
-  geom_text(color='white', fontface='bold', size=3, hjust=1.2) +
-  scale_x_log10(labels=NULL) +
+death_totals = totals_chart_base(death_by_country, Country,
+                      last_date, min_death_cases) +
   labs(x='Reported deaths (log scale)', y='',
     title='Reported coronavirus deaths by country',
     subtitle=str_glue('Showing countries with {min_death_cases} or more deaths'),
-    caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
-                     'https://github.com/CSSEGISandData/COVID-19')) +
-  silgelib::theme_plex() +
-  theme(panel.grid=element_blank())
+    caption=jhu_credit(last_date)) 
 
-# Selected countries
-selected_countries = c('China', 'United States', 'South Korea', 
-             'Italy', 'Spain', 'France', 'United Kingdom')
-
-selected_death_base_plot = to_plot_deaths %>% 
-  filter(Country %in% selected_countries) %>% 
-  group_by(Country) %>% 
-  mutate(label=if_else(Day==max(Day), Country, NA_character_)) %>% 
-  ggplot(aes(Day, Count, color=Country, label=label)) +
-  geom_line(size=1) +
-  geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
-                  segment.color = NA, size=3, ) +
-  #scale_x_continuous(limits=c(0, 40)) +
-  scale_color_brewer(palette='Dark2') +
-  labs(x='Reported deaths', y='',
+selected_death_base_plot = 
+  selected_item_base(to_plot_deaths, selected_countries, Country) +
+  labs(x=death_chart_x(min_death_cases), y='Reported deaths',
        title='Reported coronavirus deaths, selected countries',
-       subtitle=str_glue('Cumulative number of deaths, ',
-                         'by number of days since {min_death_cases}th death'),
-       caption=str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
-                        'https://github.com/CSSEGISandData/COVID-19')) +
-  silgelib::theme_plex() +
-  theme(legend.position='none')
+       subtitle=death_chart_subtitle(min_death_cases),
+       caption=jhu_credit(last_date))
 
 selected_death_plot = selected_death_base_plot +
   scale_y_continuous(labels=scales::comma)

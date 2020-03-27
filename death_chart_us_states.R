@@ -1,52 +1,14 @@
 # Growth chart for US states only
-
-library(tidyverse)
-library(lubridate)
-library(gghighlight)
-
 death_us = read_csv(here::here('data/covid_deaths_usafacts.csv')) %>% 
   select(-matches('X\\d+')) # Remove extra columns
 
 min_death_cases = 5
 last_date = names(death_us) %>% tail(1)
-state_lookup = state.name %>% set_names(state.abb)
-death_by_state = death_us %>% 
-  # filter(`Country/Region`=='US') %>%
-  # rename(State=`Province/State`) %>%
-  # select(-`Country/Region`, -Lat, -Long) %>% 
-  select(-countyFIPS, -`County Name`, -stateFIPS) %>% 
-  # There are many individual counties listed, we need to split them out
-  # extract(State, c('County', 'State_abbr'), 
-  #         '(.+?), ([:upper:]{2})', remove=FALSE) %>% 
-  # mutate(State=if_else(!is.na(State_abbr) & State_abbr %in% names(state_lookup),
-  #                      state_lookup[State_abbr], State)) %>% 
-#  mutate(State=recode(State, `Washington, D.C.`='District of Columbia')) %>% 
-#  select(-County, -State_abbr) %>% 
-  mutate(State=if_else(State %in% names(state_lookup),
-                       state_lookup[State], State)) %>% 
-  mutate(State=recode(State, DC='District of Colombia')) %>% 
-  group_by(State) %>% 
-  summarize_all(sum) %>% 
-  filter(.data[[last_date]] >= min_death_cases) %>% 
-  pivot_longer(-State, names_to='Date', values_to='Count') %>% 
-  mutate(Date=mdy(Date))
+death_by_state = death_us %>% clean_state(min_death_cases)
 
 # For each state, make a data series that
 # starts at min_death_cases cases
-filter_cases = function(df) {
-  df %>% 
-    filter(Count >= min_death_cases) %>% 
-    select(-Date) %>% 
-    mutate(Day=row_number(Count))
-}
-
-affected = death_by_state %>% 
-  group_nest(State) %>% 
-  mutate(data=map(data, filter_cases)) %>% 
-  unnest(data) %>% 
-  group_by(State) %>% 
-  mutate(NumDays=max(Day)) %>% 
-  ungroup()
+affected = by_day_since_min(death_by_state, State, min_death_cases)
 
 # How many states?
 length(unique(affected$State))
@@ -58,66 +20,25 @@ to_plot_us_death = affected %>%
   filter(!State %in% c('Diamond Princess', "Grand Princess"),
          NumDays>=min_days)
 
-death_chart_us = ggplot(to_plot_us_death, aes(Day, Count, color=State)) +
-  geom_line(size=1) +
-#  geom_abline(slope=1/8, intercept=log10(min_death_cases)) +
-  gghighlight(max(Count) > min_death_cases, 
-              unhighlighted_params=list(size=0.5),
-              use_direct_label=FALSE) +
-  scale_x_continuous(minor_breaks=NULL) +
-  scale_y_log10(labels=partial(scales::comma, accuracy=1)) +
-  scale_color_manual(values=rep('darkred', length(unique(to_plot_us_death$State)))) +
-  guides(color='none') +
-  labs(x=str_glue('Number of days since {min_death_cases}th case'), y='',
+death_chart_us = growth_chart_base(to_plot_us_death, State, 'darkred') +
+  labs(x=death_chart_x(min_death_cases), y='',
        title='Coronavirus deaths by state',
-       subtitle=str_glue('Cumulative number of deaths, ',
-                         'by number of days since {min_death_cases}th death'),
-       caption=str_glue('Source: USAFacts as of {last_date}\n',
-                        'https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/')) +
-  facet_wrap(~State, strip.position='bottom', ncol=4) +
-  silgelib::theme_plex() +
-  theme(panel.spacing.y=unit(1, 'lines'))
+       subtitle=death_chart_subtitle(min_death_cases),
+       caption=usafacts_credit(last_date))
 
-totals_only = death_by_state %>% 
-  filter(Date==mdy(last_date), Count >= min_death_cases) %>% 
-  mutate(State=fct_reorder(State, Count))
-
-death_us_totals = ggplot(totals_only, aes(Count, State, 
-                                          label=scales::comma(Count, accuracy=1))) +
-  # geom_segment(aes(xend=min_death_cases, yend=State), color='gray10', size=0.1) +
-  # geom_point(color='red') +
-  geom_col(fill='steelblue') +
-  geom_text(color='white', fontface='bold', size=3, hjust=1.2) +
-  scale_x_log10(labels=NULL) +
+death_us_totals = totals_chart_base(death_by_state, State, 
+                                    last_date, min_death_cases) +
   labs(x='Reported deaths (log scale)', y='',
        title='Reported coronavirus deaths by US state',
-       subtitle=str_glue('Showing states with {min_death_cases} or more deaths'),
-       caption=str_glue('Source: USAFacts as of {last_date}\n',
-                        'https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/')) +
-  silgelib::theme_plex() +
-  theme(panel.grid=element_blank())
+       subtitle=str_glue(
+         'Showing states with {min_death_cases} or more deaths'),
+       caption=usafacts_credit(last_date))
 
-# selected states
-selected_states = c('New York', 'Massachusetts', 'California', 
-                    'Florida', 'Washington', 'Oregon')
-
-selected_us_death_to_plot = to_plot_us_death %>% 
-  filter(State %in% selected_states) %>% 
-  group_by(State) %>% 
-  mutate(label=if_else(Day==max(Day), State, NA_character_))
-
-selected_us_death_base_plot = selected_us_death_to_plot %>% 
-  ggplot(aes(Day, Count, color=State, label=label)) +
-  geom_line(size=1) +
-  geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
-                  segment.color = NA, size=3, show.legend=FALSE) +
-  scale_color_brewer(palette='Dark2') +
-  labs(x='Reported deaths', y='',
+selected_us_death_base_plot = 
+  selected_item_base(to_plot_us_death, selected_states, State) +
+  labs(x=death_chart_x(min_death_cases), y='Reported deaths',
        title='Reported coronavirus deaths by US state',
-       caption=str_glue('Source: USAFacts as of {last_date}\n',
-                        'https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/')) +
-  silgelib::theme_plex() +
-  theme(legend.position='none')
+       caption=usafacts_credit(last_date)) 
 
 selected_us_death_log_plot = selected_us_death_base_plot +
   scale_y_log10(labels=scales::comma)

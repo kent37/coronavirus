@@ -6,6 +6,7 @@ output: html_document
 
 ```{r parameters, echo=FALSE,include=FALSE,message=FALSE}
 knitr::opts_chunk$set(echo=FALSE,fig.width=10, fig.height=8, comment=NA, warning=FALSE, message=FALSE)
+source('Utilities.R')
 ```
 
 ## {.tabset .tabset-pills}
@@ -41,8 +42,8 @@ print(growth_chart)
 
 ##### Totals
 
-```{r growth_totals, fig.height=nrows*1.2+0.5}
-print(growth_totals)
+```{r growth_total, fig.height=nrows*1.2+0.5}
+print(growth_total)
 ```
 
 ### Deaths by country
@@ -120,7 +121,6 @@ print(growth_us_totals)
 ```{r death_us}
 source('death_chart_us_states.R')
 nrows = ceiling(length(unique(to_plot_us_death$State))/4)
-death_rows = ceiling(length(unique(totals_only$State))/4)
 ```
 
 #### {.tabset}
@@ -147,7 +147,7 @@ print(death_chart_us)
 
 ##### Totals
 
-```{r death_us_totals, fig.height=death_rows+0.5}
+```{r death_us_totals, fig.height=nrows*2.2+0.5}
 print(death_us_totals)
 ```
 
