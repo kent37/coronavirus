@@ -20,7 +20,8 @@ to_plot_us_death = affected %>%
   filter(!State %in% c('Diamond Princess', "Grand Princess"),
          NumDays>=min_days)
 
-death_chart_us = growth_chart_base(to_plot_us_death, State, 'darkred') +
+death_chart_us = growth_chart_base(to_plot_us_death, State, 'darkred',
+                                    highlight_states) +
   labs(x=death_chart_x(min_death_cases), y='',
        title='Coronavirus deaths by state',
        subtitle=death_chart_subtitle(min_death_cases),

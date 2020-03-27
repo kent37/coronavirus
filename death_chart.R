@@ -19,7 +19,8 @@ to_plot_deaths = death_by_day %>%
   filter(!Country %in% c('Cruise Ship'),
          NumDays>=min_death_days)
 
-death_chart = growth_chart_base(to_plot_deaths, Country, 'darkred') +
+death_chart = growth_chart_base(to_plot_deaths, Country, 'darkred', 
+                                highlight_countries) +
   labs(x=death_chart_x(min_death_cases), y='',
        title='Coronavirus deaths by country',
        subtitle=death_chart_subtitle(min_death_cases),

@@ -19,7 +19,8 @@ to_plot_us = state_cases %>%
   filter(!State %in% c('Diamond Princess', "Grand Princess"),
          NumDays>=min_days)
 
-growth_chart_us = growth_chart_base(to_plot_us, State, 'darkred') +
+growth_chart_us = growth_chart_base(to_plot_us, State, 'darkred',
+                                    highlight_states) +
   labs(x=case_chart_x(min_state_cases), y='',
        title='Coronavirus reported cases by state',
        subtitle=case_chart_subtitle(min_state_cases),

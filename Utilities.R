@@ -1,6 +1,5 @@
 # Utilities
 library(tidyverse)
-library(gghighlight)
 library(ggrepel)
 library(lubridate)
 
@@ -95,29 +94,61 @@ to_day_series = function(df, min_cases) {
 theme_set(silgelib::theme_plex())
 
 # Common code for growth charts
-growth_chart_base = function(df, division_name, color) {
+growth_chart_base = function(df, division_name, color, highlights) {
   division_name_str = rlang::as_string(ensym(division_name))
   colors = rep(color, length(unique(df[[division_name_str]])))
-
-    ggplot(df, aes(Day, Count, color={{division_name}})) +
-    geom_line(size=1) +
+  
+  # Truncate China
+  if (division_name_str == 'Country') {
+    xlim = df %>% 
+      filter(Country != 'China') %>% 
+      pull(Day) %>% 
+      max()
+    xlim = 10 * ceiling(xlim/10) # Round up to multiple of ten
+  } else xlim=NA
+  
+  # Make some helper dataframes
+  # The points at the end of the curves
+  df_endpoints = df %>% 
+    group_by({{division_name}}) %>%
+    top_n(1, Day)
+  
+  # This will be the overall grey background
+  df_no_div = df %>% rename(group={{division_name}})
+  
+  # The highlight curves
+  df_highlights = df %>% 
+    filter({{division_name}} %in% highlights) %>% 
+    rename(group={{division_name}})
+  df_highlight_endpoints = df_highlights %>% 
+    group_by(group) %>%
+    top_n(1, Count)
+  
+  ggplot(df, aes(Day, Count, color={{division_name}})) +
+    # Grey background lines
+    geom_line(data=df_no_div, aes(group=group),
+              size = 0.2, color = "gray80") +
+    # Highlight lines and points
+      geom_line(data=df_highlights, aes(group=group), 
+                color='gray10', size=0.2, lineend='round') +
+      geom_point(data=df_highlight_endpoints, size=.2, color='gray10') +
+    # Primary lines and points
+      geom_line(size=0.5, lineend='round') +
+      geom_point(data=df_endpoints, size=1, shape=21, fill=color) +
     # geom_abline(slope=log10(sqrt(2)), 
     #             intercept=log10(min_country_cases),
     #             color='red', alpha=0.5, linetype=3, size=0.5) +
     # geom_abline(slope=log10(2^(1/3)), 
     #             intercept=log10(min_country_cases),
     #             color='blue', alpha=0.5, linetype=3, size=0.5) +
-    gghighlight(max(Count) > 20, 
-                unhighlighted_params=list(size=0.5),
-                use_direct_label=FALSE) +
-    scale_x_continuous(minor_breaks=NULL) +
-    scale_y_log10(labels=scales::comma) +
+    scale_x_continuous(minor_breaks=NULL, limits=c(NA, xlim)) +
+    scale_y_log10(labels=scales::comma, minor_breaks=NULL) +
     scale_color_manual(values=colors, guid='none') +
     facet_wrap(vars({{division_name}}), strip.position='bottom', ncol=4) +
     silgelib::theme_plex() +
-    theme(panel.spacing.y=unit(1, 'lines'))
+    theme(panel.spacing.y=unit(1, 'lines'),
+          strip.text=element_text(color=color, size=10))
 }
-
 totals_chart_base = function(df, division_name, last_date, min_cases) {
   # Compute totals
   if (is.character(last_date)) last_date=mdy(last_date)
@@ -137,9 +168,11 @@ totals_chart_base = function(df, division_name, last_date, min_cases) {
 # Selected countries and states
 selected_countries = c('China', 'United States', 'South Korea', 
              'Italy', 'Spain', 'France', 'United Kingdom')
+highlight_countries = c('United States', 'Japan')
 
 selected_states = c('New York', 'Massachusetts', 'California', 
                     'Florida', 'Washington', 'Oregon')
+highlight_states = c('New York', 'Massachusetts', 'Florida')
 
 selected_item_base = function(df, selection, division_name) {
   selected_to_plot = df %>% 

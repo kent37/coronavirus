@@ -13,12 +13,13 @@ country_cases = by_day_since_min(by_country, Country, min_country_cases)
 length(unique(country_cases$Country))
 
 # Only countries with >min_days days >= min_country_cases
-min_days = 10
+min_days = 5
 to_plot_country = country_cases %>% 
-  filter(!Country %in% c('Cruise Ship'),
+  filter(!Country %in% c('Cruise Ship', 'Diamond Princess'),
          NumDays>=min_days)
 
-growth_chart = growth_chart_base(to_plot_country, Country, 'darkred') +
+growth_chart = growth_chart_base(to_plot_country, Country, 'darkred',
+                 highlight_countries) +
   labs(x=case_chart_x(min_country_cases), y='',
        title='Coronavirus cases by country',
        subtitle=case_chart_subtitle(min_country_cases),
