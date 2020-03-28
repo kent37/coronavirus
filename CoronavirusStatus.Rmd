@@ -151,6 +151,76 @@ print(death_chart_us)
 print(death_us_totals)
 ```
 
+### Cases by US counties
+
+```{r growth_counties}
+source('growth_chart_us_counties.R')
+nrows = ceiling(length(unique(to_plot_county$County_State))/4)
+```
+
+#### {.tabset}
+
+##### Selected {.tabset}
+
+###### Linear
+
+```{r selected_counties_plot, fig.height=6, fig.width=8}
+print(selected_counties_plot)
+```
+
+###### Log
+
+```{r selected_counties_log_plot, fig.height=6, fig.width=8}
+print(selected_counties_log_plot)
+```
+
+##### Growth
+
+```{r growth_chart_county, fig.height=nrows*2.2+0.5}
+print(growth_chart_county)
+```
+
+##### Totals
+
+```{r growth_county_totals, fig.height=nrows}
+print(growth_county_totals)
+```
+
+### Deaths by US counties
+
+```{r death_counties}
+source('death_chart_us_counties.R')
+nrows = ceiling(length(unique(to_plot_county_deaths$County_State))/4)
+```
+
+#### {.tabset}
+
+##### Selected {.tabset}
+
+###### Linear
+
+```{r selected_counties_death_plot, fig.height=6, fig.width=8}
+print(selected_counties_death_plot)
+```
+
+###### Log
+
+```{r selected_counties_death_log_plot, fig.height=6, fig.width=8}
+print(selected_counties_death_log_plot)
+```
+
+##### Growth
+
+```{r death_chart_county, fig.height=nrows*2+0.5}
+print(death_chart_county)
+```
+
+##### Totals
+
+```{r death_county_totals, fig.height=nrows*2.2+0.5}
+print(death_county_totals)
+```
+
 ### About
 
 <big>
@@ -158,11 +228,15 @@ Country data is from the Johns Hopkins Center for Systems Science and Engineerin
 GitHub repository
 at https://github.com/CSSEGISandData/COVID-19.
 
-Data for US states is from USAFacts
-https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/.
+Data for US states is from the COVID Tracking Project
+https://covidtracking.com/.
+
+Data for US counties is from The New York Times 
+https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html.
 
 The chart style was inspired by this 
-[Financial Times article](https://www.ft.com/content/a26fbf7e-48f8-11ea-aeb3-955839e06441) which is ~~unfortunately~~ no longer behind a paywall.
+[Financial Times article](https://www.ft.com/content/a26fbf7e-48f8-11ea-aeb3-955839e06441) and the work of 
+[John Burn-Murdoch](https://twitter.com/jburnmurdoch).
 
 The charts show all countries or states where the number of cases or deaths
 has been greater than

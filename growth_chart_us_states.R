@@ -30,7 +30,8 @@ growth_us_totals = totals_chart_base(by_state, State,
                               last_date, min_state_cases) +
   labs(x='Reported cases (log scale)', y='',
        title='Reported coronavirus cases by US state',
-        subtitle=case_chart_subtitle(min_state_cases),
+       subtitle=str_glue(
+         'Showing states with {min_state_cases} or more cases'),
        caption=covid_tracking_credit(last_date)) 
 
 selected_states_base_plot = 

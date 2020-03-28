@@ -31,7 +31,9 @@ state_lookup['GU'] = 'Guam'
 state_lookup['MP'] = 'Northern Mariana Islands'
 state_lookup['PR'] = 'Puerto Rico'
 state_lookup['UM'] = 'Minor Outlying Islands'
-state_lookup['VI'] = 'US Virgin Islands'
+state_lookup['VI'] = 'Virgin Islands'
+
+state_reverse_lookup = names(state_lookup) %>% set_names(state_lookup)
 
 read_and_clean_covid_tracking = function() {
   df = read_csv(here::here('data/covid_tracking_daily.csv'))
@@ -68,6 +70,14 @@ clean_usa_facts_state = function(df, min_cases) {
     mutate(Date=mdy(Date))
 }
 
+# Read and clean county data from NY Times
+read_and_clean_ny_times_counties = function() {
+  read_csv(here::here('data/ny_times_counties.csv')) %>% 
+    rename_all(str_to_title) %>% 
+    rename(FIPS=Fips) %>% 
+    mutate(County_State=str_glue('{County}, {state_reverse_lookup[State]}'))
+}
+
 # For each division_name, make a data series that
 # starts at min_cases cases
 by_day_since_min = function(df, division_name, min_cases) {
@@ -89,6 +99,14 @@ to_day_series = function(df, min_cases) {
     mutate(Day=row_number(Count))
 }
 
+# Order counties by state, then alpha
+order_counties = function(df) {
+  df %>% 
+  select(County, State, County_State) %>% 
+  mutate(State=state_reverse_lookup[State]) %>% 
+  distinct() %>% 
+  arrange(State, County)
+}
 
 # Shared theme for everything
 theme_set(silgelib::theme_plex())
@@ -130,10 +148,10 @@ growth_chart_base = function(df, division_name, color, highlights) {
               size = 0.2, color = "gray80") +
     # Highlight lines and points
       geom_line(data=df_highlights, aes(group=group), 
-                color='gray10', size=0.2, lineend='round') +
-      geom_point(data=df_highlight_endpoints, size=.2, color='gray10') +
+                color='gray20', size=0.2, lineend='round') +
+      #geom_point(data=df_highlight_endpoints, size=.2, color='gray20') +
     # Primary lines and points
-      geom_line(size=0.5, lineend='round') +
+      geom_line(size=0.8, lineend='round') +
       geom_point(data=df_endpoints, size=1, shape=21, fill=color) +
     # geom_abline(slope=log10(sqrt(2)), 
     #             intercept=log10(min_country_cases),
@@ -178,14 +196,18 @@ selected_item_base = function(df, selection, division_name) {
   selected_to_plot = df %>% 
     filter({{division_name}} %in% selection) %>% 
     group_by({{division_name}}) %>% 
-    mutate(label=if_else(Day==max(Day), {{division_name}}, NA_character_))
+    mutate(label=if_else(Day==max(Day), 
+                         as.character({{division_name}}), NA_character_))
 
+  # Dark2 palette only has 8 colors
+  n_to_plot = n_distinct(selected_to_plot %>% pull({{division_name}}))
+  palette_name = if (n_to_plot <= 8) 'Dark2' else 'Paired'
   ggplot(selected_to_plot,
          aes(Day, Count, color={{division_name}}, label=label)) +
     geom_line(size=1) +
     geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
-                    segment.color = NA, size=3, ) +
-    scale_color_brewer(palette='Dark2') +
+                    segment.color = NA, size=3) +
+    scale_color_brewer(palette=palette_name) +
     silgelib::theme_plex() +
     theme(legend.position='none')
 }
@@ -216,6 +238,11 @@ jhu_credit = function(last_date) {
 covid_tracking_credit = function(last_date) {
   str_glue('Source: COVID Tracking Project as of {last_date}\n',
     'https://covidtracking.com/')
+}
+
+ny_times_credit = function(last_date) {
+  str_glue('Source: The New York Times as of {last_date}\n',
+    'https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html')
 }
 
 usafacts_credit = function(last_date) {
