@@ -234,7 +234,7 @@ selected_item_base = function(df, selection, division_name) {
 
   # Dark2 palette only has 8 colors, Paired has 12
   n_to_plot = n_distinct(selected_to_plot %>% pull({{division_name}}))
-  stop_if_not(n_to_plot <= 12, 'Too many items to color!')
+  stopifnot(n_to_plot <= 12) # Too many items to color
   palette_name = if (n_to_plot <= 8) 'Dark2' else 'Paired'
   ggplot(selected_to_plot,
          aes(Day, Count, color={{division_name}}, label=label)) +

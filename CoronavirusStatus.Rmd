@@ -115,24 +115,28 @@ total_plot = death_county_totals
 
 ### About
 
+#### Data
+
 <big>
-Country data is from the Johns Hopkins Center for Systems Science and Engineering
+
+- Country data is from the Johns Hopkins Center for Systems Science and Engineering
 GitHub repository:  
 https://github.com/CSSEGISandData/COVID-19.
-
-Data for US states is from the COVID Tracking Project:  
+- Data for US states is from the COVID Tracking Project:  
 https://covidtracking.com/.
-
-Data for US counties is from The New York Times: 
+- Data for US counties is from The New York Times: 
 https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html.
 
-The chart style was inspired by this 
-[Financial Times article](https://www.ft.com/content/a26fbf7e-48f8-11ea-aeb3-955839e06441) and the work of 
-[John Burn-Murdoch](https://twitter.com/jburnmurdoch).
+#### Inspiration
 
-The charts show all countries or states where the number of cases or deaths
-has been greater than
-the indicated threshold for five days or more.
+- The primary chart style was inspired by this 
+[Financial Times article](https://www.ft.com/content/a26fbf7e-48f8-11ea-aeb3-955839e06441) and the work of 
+[John Burn-Murdoch](https://twitter.com/jburnmurdoch).  
+- The *New vs All* charts were inspired by the 
+[Covid Trends](https://aatishb.com/covidtrends/) chart and explainer by
+[Aatish Bhatia](https://aatishb.com/).
+
+#### Credit
 
 Data analysis and visualization by Kent Johnson. 
 [GitHub source](https://github.com/kent37/coronavirus)
