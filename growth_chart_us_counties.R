@@ -24,7 +24,6 @@ to_plot_county$County_State =
   factor(to_plot_county$County_State,
          levels=county_order$County_State)
 
-highlight_counties = c('New York City, NY', 'Middlesex, MA')
 growth_chart_county = growth_chart_base(to_plot_county, County_State, 'darkred',
                                     highlight_counties) +
   labs(x=case_chart_x(min_county_cases), y='',
@@ -55,11 +54,6 @@ growth_county_totals = totals_chart_base(by_county, County_State,
        subtitle=str_glue(
          'Showing counties with {min_county_cases} or more cases'),
        caption=ny_times_credit(last_date)) 
-
-selected_counties = county_order %>% 
-  filter(State %in% c('MA', 'NY')) %>% 
-  pull(County_State) %>% 
-  as.character()
 
 selected_counties_base_plot = 
   selected_item_base(to_plot_county, selected_counties, County_State) +

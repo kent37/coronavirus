@@ -219,6 +219,12 @@ selected_states = c('New York', 'Massachusetts', 'California',
                     'Florida', 'Washington', 'Oregon')
 highlight_states = c('New York', 'Massachusetts', 'Florida')
 
+highlight_counties = c('New York City, NY', 'Middlesex, MA')
+selected_counties = c(highlight_counties,
+                      'Suffolk, MA', 
+                      'Suffolk, NY', 'Westchester, NY',
+                      'Wayne, MI', 'Cook, IL', 'Orleans, LA')
+
 selected_item_base = function(df, selection, division_name) {
   selected_to_plot = df %>% 
     filter({{division_name}} %in% selection) %>% 
@@ -226,8 +232,9 @@ selected_item_base = function(df, selection, division_name) {
     mutate(label=if_else(Day==max(Day), 
                          as.character({{division_name}}), NA_character_))
 
-  # Dark2 palette only has 8 colors
+  # Dark2 palette only has 8 colors, Paired has 12
   n_to_plot = n_distinct(selected_to_plot %>% pull({{division_name}}))
+  stop_if_not(n_to_plot <= 12, 'Too many items to color!')
   palette_name = if (n_to_plot <= 8) 'Dark2' else 'Paired'
   ggplot(selected_to_plot,
          aes(Day, Count, color={{division_name}}, label=label)) +
