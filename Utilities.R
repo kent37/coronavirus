@@ -126,7 +126,9 @@ growth_chart_base = function(df, division_name, color, highlights) {
   } else xmax=NA
   
   facet_chart_base(df, Day, Count, {{division_name}}, color, 
-                   highlights, xmax=xmax)
+                   highlights) +
+    scale_x_continuous(labels=scales::label_comma(accuracy=1),
+                       minor_breaks=NULL, limits=c(NA, xmax))
 }
 
 # Sliding average of new cases
@@ -139,14 +141,25 @@ with_sliding_window = function(df, division_name, days) {
            Sliding=slide_dbl(Change, mean, .before=(days-1), .complete=TRUE))
 }
 
+# Chart of new cases vs day
 new_cases_base = function(sliding, division_name, color, highlights, days) {
   facet_chart_base(sliding, Day, Sliding, {{division_name}}, 
-                   color, highlights, xmin=days)
+                   color, highlights) +
+    scale_x_continuous(labels=scales::label_comma(accuracy=1),
+                       minor_breaks=NULL, limits=c(days, NA))
+}
+
+# Chart of new cases vs total cases on log-log scale
+new_vs_count_base = function(df, division_name, color, highlights) {
+  facet_chart_base(df, Count, Sliding, {{division_name}}, 
+                   color, highlights) +
+    scale_x_log10(labels=scales::label_number_si(),
+                  minor_breaks=NULL)
  }
 
 # Common code for faceted charts with grey background lines
 facet_chart_base = function(df, x_name, y_name, division_name, color='darkred', 
-                            highlights, xmin=NA, xmax=NA) {
+                            highlights) {
   # Make some helper dataframes
   # The points at the end of the curves
   df_endpoints = df %>% 
@@ -174,8 +187,6 @@ facet_chart_base = function(df, x_name, y_name, division_name, color='darkred',
     # Primary lines and points
     geom_line(size=0.8, lineend='round', color=color) +
     geom_point(data=df_endpoints, size=1, shape=21, fill=color) +
-    scale_x_continuous(labels=partial(scales::comma, accuracy=1),
-                       minor_breaks=NULL, limits=c(xmin, xmax)) +
     my_y_log10() +
     facet_wrap(vars({{division_name}}), strip.position='bottom', ncol=4) +
     silgelib::theme_plex() +
@@ -229,7 +240,7 @@ selected_item_base = function(df, selection, division_name) {
 }
 
 my_y_log10 = function() {
-  scale_y_log10(labels=partial(scales::comma, accuracy=1),
+  scale_y_log10(labels=scales::label_comma(accuracy=1),
                 minor_breaks=NULL)
 }
 

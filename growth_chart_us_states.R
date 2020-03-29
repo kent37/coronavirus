@@ -35,6 +35,13 @@ daily_chart_us = new_cases_base(us_daily_df, State, 'darkred',
        subtitle='Five day average of daily reported cases',
        caption=covid_tracking_credit(last_date))
 
+new_vs_all_us_chart = new_vs_count_base(us_daily_df, State, 'darkred',
+                                     highlight_states) +
+  labs(x='Total reported cases', y='Daily new cases', 
+       title='New reported cases vs all cases by US state',
+       subtitle='Five day average of daily reported cases vs all cases, log-log scale',
+       caption=covid_tracking_credit(last_date))
+
 growth_us_totals = totals_chart_base(by_state, State, 
                               last_date, min_state_cases) +
   labs(x='Reported cases (log scale)', y='',

@@ -21,6 +21,7 @@ linear_plot = selected_country_plot
 log_plot = selected_country_log_plot
 growth_plot = growth_chart
 daily_plot = daily_chart
+new_vs_all_plot = new_vs_all_chart
 total_plot = growth_total
 ```
 
@@ -37,6 +38,7 @@ linear_plot = selected_death_plot
 log_plot = selected_death_log_plot
 growth_plot = death_chart
 daily_plot = daily_deaths
+new_vs_all_plot = new_vs_all_death_chart
 total_plot = death_totals
 ```
 
@@ -53,6 +55,7 @@ linear_plot = selected_states_plot
 log_plot = selected_states_log_plot
 growth_plot = growth_chart_us
 daily_plot = daily_chart_us
+new_vs_all_plot = new_vs_all_us_chart
 total_plot = growth_us_totals
 ```
 
@@ -69,6 +72,7 @@ linear_plot = selected_us_death_plot
 log_plot = selected_us_death_log_plot
 growth_plot = death_chart_us
 daily_plot = daily_deaths_us
+new_vs_all_plot = new_vs_all_deaths_us_chart
 total_plot = death_us_totals
 ```
 
@@ -85,6 +89,7 @@ linear_plot = selected_counties_plot
 log_plot = selected_counties_log_plot
 growth_plot = growth_chart_county
 daily_plot = daily_growth_county
+new_vs_all_plot = new_vs_all_county_chart
 total_plot = growth_county_totals
 ```
 
@@ -101,6 +106,7 @@ linear_plot = selected_counties_death_plot
 log_plot = selected_counties_death_log_plot
 growth_plot = death_chart_county
 daily_plot = daily_death_county
+new_vs_all_plot = new_vs_all_county_death_chart
 total_plot = death_county_totals
 ```
 

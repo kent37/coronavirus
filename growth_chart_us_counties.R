@@ -41,6 +41,13 @@ daily_growth_county = new_cases_base(county_growth_df, County_State, 'darkred',
        subtitle='Five day average of daily reported cases',
        caption=ny_times_credit(last_date))
 
+new_vs_all_county_chart = new_vs_count_base(county_growth_df, County_State, 'darkred',
+                                     highlight_counties) +
+  labs(x='Total reported cases', y='Daily new cases', 
+       title='New reported cases vs all cases by US county',
+       subtitle='Five day average of daily reported cases vs all cases, log-log scale',
+       caption=ny_times_credit(last_date))
+
 growth_county_totals = totals_chart_base(by_county, County_State, 
                               last_date, min_county_cases) +
   labs(x='Reported cases (log scale)', y='',

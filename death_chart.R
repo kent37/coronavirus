@@ -35,6 +35,13 @@ daily_deaths = new_cases_base(country_deaths_df, Country, 'darkred',
        subtitle='Seven day average of daily reported deaths',
        caption=jhu_credit(last_date))
 
+new_vs_all_death_chart = new_vs_count_base(country_deaths_df, Country, 'darkred',
+                                     highlight_countries) +
+  labs(x='Total reported deaths', y='Daily deaths', 
+       title='New deaths vs all deaths by country',
+       subtitle='Seven day average of daily reported deaths vs all deaths, log-log scale',
+       caption=jhu_credit(last_date))
+
 death_totals = totals_chart_base(death_by_country, Country,
                       last_date, min_death_cases) +
   labs(x='Reported deaths (log scale)', y='',

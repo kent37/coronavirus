@@ -4,7 +4,7 @@
 # nrows - number of rows in the faceted plots
 # linear_plot, log_plot, growth_plot, total_plot
 # Optional:
-# daily_plot, nrows_daily
+# daily_plot, nrows_daily, new_vs_all_plot
 ```
 
 #### {.tabset}
@@ -34,6 +34,12 @@ if (!is.null(daily_plot)) {
   cat('\n\n##### Daily\n\n')
   print(daily_plot)
 }
+
+if (!is.null(new_vs_all_plot)) {
+  cat('\n\n##### New vs All\n\n')
+  print(new_vs_all_plot)
+}
+
 ```
 
 ##### Totals

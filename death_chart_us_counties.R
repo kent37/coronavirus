@@ -44,6 +44,13 @@ daily_death_county = new_cases_base(county_death_df,
        subtitle='Five day average of daily reported deaths',
        caption=ny_times_credit(last_date))
 
+new_vs_all_county_death_chart = new_vs_count_base(county_death_df, County_State, 'darkred',
+                                     highlight_counties) +
+  labs(x='Total reported deaths', y='Daily new deaths', 
+       title='New reported deaths vs all deaths by US county',
+       subtitle='Five day average of daily reported deaths vs all deaths, log-log scale',
+       caption=ny_times_credit(last_date))
+
 death_county_totals = totals_chart_base(death_by_county, County_State, 
                               last_date, min_county_deaths) +
   labs(x='Reported deaths (log scale)', y='',

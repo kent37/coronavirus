@@ -34,6 +34,13 @@ daily_chart = new_cases_base(country_daily_df, Country, 'darkred',
        subtitle='Seven day average of daily reported cases',
        caption=jhu_credit(last_date))
 
+new_vs_all_chart = new_vs_count_base(country_daily_df, Country, 'darkred',
+                                     highlight_countries) +
+  labs(x='Total reported cases', y='Daily new cases', 
+       title='New reported cases vs all cases by country',
+       subtitle='Seven day average of daily reported cases vs all cases, log-log scale',
+       caption=jhu_credit(last_date))
+
 growth_total = totals_chart_base(by_country, Country, 
                                     last_date, min_country_cases) +
   labs(x='Reported cases (log scale)', y='',
