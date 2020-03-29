@@ -2,6 +2,7 @@
 library(tidyverse)
 library(ggrepel)
 library(lubridate)
+library(slider)
 
 # Clean country data
 clean_country = function(df, min_cases) {
@@ -114,17 +115,38 @@ theme_set(silgelib::theme_plex())
 # Common code for growth charts
 growth_chart_base = function(df, division_name, color, highlights) {
   division_name_str = rlang::as_string(ensym(division_name))
-  colors = rep(color, length(unique(df[[division_name_str]])))
-  
+
   # Truncate China
   if (division_name_str == 'Country') {
-    xlim = df %>% 
+    xmax = df %>% 
       filter(Country != 'China') %>% 
       pull(Day) %>% 
       max()
-    xlim = 10 * ceiling(xlim/10) # Round up to multiple of ten
-  } else xlim=NA
+    xmax = 10 * ceiling(xmax/10) # Round up to multiple of ten
+  } else xmax=NA
   
+  facet_chart_base(df, Day, Count, {{division_name}}, color, 
+                   highlights, xmax=xmax)
+}
+
+# Sliding average of new cases
+with_sliding_window = function(df, division_name, days) {
+  df %>% 
+    filter(NumDays >= 2*days) %>% 
+    group_by({{division_name}}) %>% 
+    arrange(Day) %>% 
+    mutate(Change=c(NA, diff(Count)),
+           Sliding=slide_dbl(Change, mean, .before=(days-1), .complete=TRUE))
+}
+
+new_cases_base = function(sliding, division_name, color, highlights, days) {
+  facet_chart_base(sliding, Day, Sliding, {{division_name}}, 
+                   color, highlights, xmin=days)
+ }
+
+# Common code for faceted charts with grey background lines
+facet_chart_base = function(df, x_name, y_name, division_name, color='darkred', 
+                            highlights, xmin=NA, xmax=NA) {
   # Make some helper dataframes
   # The points at the end of the curves
   df_endpoints = df %>% 
@@ -142,31 +164,25 @@ growth_chart_base = function(df, division_name, color, highlights) {
     group_by(group) %>%
     top_n(1, Count)
   
-  ggplot(df, aes(Day, Count, color={{division_name}})) +
+  ggplot(df, aes({{x_name}}, {{y_name}})) +
     # Grey background lines
     geom_line(data=df_no_div, aes(group=group),
               size = 0.2, color = "gray80") +
     # Highlight lines and points
-      geom_line(data=df_highlights, aes(group=group), 
-                color='gray20', size=0.2, lineend='round') +
-      #geom_point(data=df_highlight_endpoints, size=.2, color='gray20') +
+    geom_line(data=df_highlights, aes(group=group), 
+              color='gray20', size=0.2, lineend='round') +
     # Primary lines and points
-      geom_line(size=0.8, lineend='round') +
-      geom_point(data=df_endpoints, size=1, shape=21, fill=color) +
-    # geom_abline(slope=log10(sqrt(2)), 
-    #             intercept=log10(min_country_cases),
-    #             color='red', alpha=0.5, linetype=3, size=0.5) +
-    # geom_abline(slope=log10(2^(1/3)), 
-    #             intercept=log10(min_country_cases),
-    #             color='blue', alpha=0.5, linetype=3, size=0.5) +
-    scale_x_continuous(minor_breaks=NULL, limits=c(NA, xlim)) +
-    scale_y_log10(labels=scales::comma, minor_breaks=NULL) +
-    scale_color_manual(values=colors, guid='none') +
+    geom_line(size=0.8, lineend='round', color=color) +
+    geom_point(data=df_endpoints, size=1, shape=21, fill=color) +
+    scale_x_continuous(labels=partial(scales::comma, accuracy=1),
+                       minor_breaks=NULL, limits=c(xmin, xmax)) +
+    my_y_log10() +
     facet_wrap(vars({{division_name}}), strip.position='bottom', ncol=4) +
     silgelib::theme_plex() +
     theme(panel.spacing.y=unit(1, 'lines'),
           strip.text=element_text(color=color, size=10))
 }
+
 totals_chart_base = function(df, division_name, last_date, min_cases) {
   # Compute totals
   if (is.character(last_date)) last_date=mdy(last_date)
@@ -210,6 +226,11 @@ selected_item_base = function(df, selection, division_name) {
     scale_color_brewer(palette=palette_name) +
     silgelib::theme_plex() +
     theme(legend.position='none')
+}
+
+my_y_log10 = function() {
+  scale_y_log10(labels=partial(scales::comma, accuracy=1),
+                minor_breaks=NULL)
 }
 
 case_chart_subtitle = function(min_cases) {

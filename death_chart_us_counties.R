@@ -34,6 +34,16 @@ death_chart_county = growth_chart_base(to_plot_county_deaths,
        subtitle=death_chart_subtitle(min_county_deaths),
        caption=ny_times_credit(last_date))
 
+county_death_df = to_plot_county_deaths %>% with_sliding_window(County_State, 5)
+daily_death_county = new_cases_base(county_death_df, 
+                                    County_State, 'darkred', 
+                             highlight_counties, 5) +
+  labs(x=case_chart_x(min_country_cases),
+       y='Daily deaths',
+       title='New reported deaths by US county',
+       subtitle='Five day average of daily reported deaths',
+       caption=ny_times_credit(last_date))
+
 death_county_totals = totals_chart_base(death_by_county, County_State, 
                               last_date, min_county_deaths) +
   labs(x='Reported deaths (log scale)', y='',
@@ -55,7 +65,7 @@ selected_counties_death_base_plot =
        caption=ny_times_credit(last_date))
 
 selected_counties_death_log_plot = selected_counties_death_base_plot +
-  scale_y_log10(labels=scales::comma)
+  my_y_log10()
 
 selected_counties_death_plot = selected_counties_death_base_plot +
   scale_y_continuous(labels=scales::comma)

@@ -1,0 +1,43 @@
+```{r include=FALSE}
+# This is the template for the tabsets of each main heading
+# It expects these variables in the environment:
+# nrows - number of rows in the faceted plots
+# linear_plot, log_plot, growth_plot, total_plot
+# Optional:
+# daily_plot, nrows_daily
+```
+
+#### {.tabset}
+
+##### Selected {.tabset}
+
+###### Linear
+
+```{r fig.height=6, fig.width=8}
+print(linear_plot)
+```
+
+###### Log
+
+```{r fig.height=6, fig.width=8}
+print(log_plot)
+```
+
+##### Growth
+
+```{r fig.height=nrows*2.2+0.5}
+print(growth_plot)
+```
+
+```{r fig.height=nrows_daily*2.2+0.5, results='asis'}
+if (!is.null(daily_plot)) {
+  cat('\n\n##### Daily\n\n')
+  print(daily_plot)
+}
+```
+
+##### Totals
+
+```{r fig.height=nrows*1.2+0.5}
+print(total_plot)
+```

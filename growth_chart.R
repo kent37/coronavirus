@@ -25,6 +25,15 @@ growth_chart = growth_chart_base(to_plot_country, Country, 'darkred',
        subtitle=case_chart_subtitle(min_country_cases),
        caption=jhu_credit(last_date))
 
+country_daily_df = to_plot_country %>% with_sliding_window(Country, 7)
+daily_chart = new_cases_base(country_daily_df, Country, 'darkred', 
+                             highlight_countries, 7) +
+  labs(x=case_chart_x(min_country_cases),
+       y='Daily new cases',
+       title='New reported cases by country',
+       subtitle='Seven day average of daily reported cases',
+       caption=jhu_credit(last_date))
+
 growth_total = totals_chart_base(by_country, Country, 
                                     last_date, min_country_cases) +
   labs(x='Reported cases (log scale)', y='',
@@ -44,4 +53,4 @@ selected_country_plot = selected_country_base_plot +
   scale_y_continuous(labels=scales::comma)
 
 selected_country_log_plot = selected_country_base_plot +
-  scale_y_log10(labels=scales::comma)
+  my_y_log10()
