@@ -26,20 +26,24 @@ death_chart = growth_chart_base(to_plot_deaths, Country, 'darkred',
        subtitle=death_chart_subtitle(min_death_cases),
        caption=jhu_credit(last_date))
 
-country_deaths_df = to_plot_deaths %>% with_sliding_window(Country, 7)
+country_deaths_df = to_plot_deaths %>% 
+  with_sliding_window(Country, country_window)
 daily_deaths = new_cases_base(country_deaths_df, Country, 'darkred', 
-                             highlight_countries, 7) +
+                             highlight_countries, country_window) +
   labs(x=case_chart_x(min_country_cases),
        y='Daily deaths',
        title='Daily reported deaths by country',
-       subtitle='Seven day average of daily reported deaths',
+       subtitle=str_glue(
+         '{country_window_str} day average of daily reported deaths'),
        caption=jhu_credit(last_date))
 
 new_vs_all_death_chart = new_vs_count_base(country_deaths_df, Country, 'darkred',
                                      highlight_countries) +
   labs(x='Total reported deaths', y='Daily deaths', 
        title='New deaths vs all deaths by country',
-       subtitle='Seven day average of daily reported deaths vs all deaths, log-log scale',
+       subtitle=str_glue(
+         '{country_window_str} day average of daily reported deaths ',
+         'vs all deaths, log-log scale'),
        caption=jhu_credit(last_date))
 
 death_totals = totals_chart_base(death_by_country, Country,

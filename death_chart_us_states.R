@@ -27,20 +27,24 @@ death_chart_us = growth_chart_base(to_plot_us_death, State, 'darkred',
        subtitle=death_chart_subtitle(min_death_cases),
        caption=covid_tracking_credit(last_date))
 
-us_death_df = to_plot_us_death %>% with_sliding_window(State, 5)
+us_death_df = to_plot_us_death %>% 
+  with_sliding_window(State, state_window)
 daily_deaths_us = new_cases_base(us_death_df, State, 'darkred', 
-                             highlight_states, 5) +
+                             highlight_states, state_window) +
   labs(x=case_chart_x(min_country_cases),
        y='Daily deaths',
        title='Daily reported deaths by US state',
-       subtitle='Five day average of daily reported deaths',
+       subtitle=str_glue(
+         '{state_window_str} day average of daily reported deaths'),
        caption=covid_tracking_credit(last_date))
 
 new_vs_all_deaths_us_chart = new_vs_count_base(us_death_df, State, 'darkred',
                                      highlight_states) +
   labs(x='Total reported deaths', y='Daily new deaths', 
        title='New reported deaths vs all deaths by US state',
-       subtitle='Five day average of daily reported deaths vs all deaths, log-log scale',
+       subtitle=str_glue(
+         '{state_window_str} day average of daily reported deaths ',
+         'vs all deaths, log-log scale'),
        caption=covid_tracking_credit(last_date))
 
 death_us_totals = totals_chart_base(death_by_state, State, 

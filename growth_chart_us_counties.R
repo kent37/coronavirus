@@ -31,20 +31,24 @@ growth_chart_county = growth_chart_base(to_plot_county, County_State, 'darkred',
        subtitle=case_chart_subtitle(min_county_cases),
        caption=ny_times_credit(last_date))
 
-county_growth_df = to_plot_county %>% with_sliding_window(County_State, 5)
+county_growth_df = to_plot_county %>% 
+  with_sliding_window(County_State, state_window)
 daily_growth_county = new_cases_base(county_growth_df, County_State, 'darkred', 
-                             highlight_counties, 5) +
+                             highlight_counties, state_window) +
   labs(x=case_chart_x(min_country_cases),
        y='Daily new cases',
        title='New reported cases by US county',
-       subtitle='Five day average of daily reported cases',
+       subtitle=str_glue(
+         '{state_window_str} day average of daily reported cases'),
        caption=ny_times_credit(last_date))
 
 new_vs_all_county_chart = new_vs_count_base(county_growth_df, County_State, 'darkred',
                                      highlight_counties) +
   labs(x='Total reported cases', y='Daily new cases', 
        title='New reported cases vs all cases by US county',
-       subtitle='Five day average of daily reported cases vs all cases, log-log scale',
+       subtitle=str_glue(
+         '{state_window_str} day average of daily reported cases ',
+         'vs all cases, log-log scale'),
        caption=ny_times_credit(last_date))
 
 growth_county_totals = totals_chart_base(by_county, County_State, 

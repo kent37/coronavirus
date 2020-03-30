@@ -26,20 +26,24 @@ growth_chart_us = growth_chart_base(to_plot_us, State, 'darkred',
        subtitle=case_chart_subtitle(min_state_cases),
        caption=covid_tracking_credit(last_date))
 
-us_daily_df = to_plot_us %>% with_sliding_window(State, 5)
+us_daily_df = to_plot_us %>% 
+  with_sliding_window(State, state_window)
 daily_chart_us = new_cases_base(us_daily_df, State, 'darkred', 
-                             highlight_states, 5) +
+                             highlight_states, state_window) +
   labs(x=case_chart_x(min_country_cases),
        y='Daily new cases',
        title='New reported cases by US state',
-       subtitle='Five day average of daily reported cases',
+       subtitle=str_glue(
+         '{state_window_str} day average of daily reported cases'),
        caption=covid_tracking_credit(last_date))
 
 new_vs_all_us_chart = new_vs_count_base(us_daily_df, State, 'darkred',
                                      highlight_states) +
   labs(x='Total reported cases', y='Daily new cases', 
        title='New reported cases vs all cases by US state',
-       subtitle='Five day average of daily reported cases vs all cases, log-log scale',
+       subtitle=str_glue(
+         '{state_window_str} day average of daily reported cases ',
+         'vs all cases, log-log scale'),
        caption=covid_tracking_credit(last_date))
 
 growth_us_totals = totals_chart_base(by_state, State, 

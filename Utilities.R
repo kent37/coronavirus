@@ -4,6 +4,8 @@ library(ggrepel)
 library(lubridate)
 library(slider)
 
+#### Read and clean data ####
+
 # Clean country data
 clean_country = function(df, min_cases) {
   last_date = names(df) %>% tail(1)
@@ -79,6 +81,8 @@ read_and_clean_ny_times_counties = function() {
     mutate(County_State=str_glue('{County}, {state_reverse_lookup[State]}'))
 }
 
+#### Data munging ####
+
 # For each division_name, make a data series that
 # starts at min_cases cases
 by_day_since_min = function(df, division_name, min_cases) {
@@ -109,6 +113,23 @@ order_counties = function(df) {
   arrange(State, County)
 }
 
+# Sliding average of new cases
+with_sliding_window = function(df, division_name, days) {
+  df %>% 
+    filter(NumDays >= 2*days) %>% 
+    group_by({{division_name}}) %>% 
+    arrange(Day) %>% 
+    mutate(Change=c(NA, diff(Count)),
+           Sliding=slide_dbl(Change, mean, 
+                             .before=(days-1), .complete=TRUE))
+}
+
+# Sliding window sizes
+country_window = 5
+country_window_str = 'Five'
+state_window = 3
+state_window_str = 'Three'
+#### Charting code ####
 # Shared theme for everything
 theme_set(silgelib::theme_plex())
 
@@ -129,16 +150,6 @@ growth_chart_base = function(df, division_name, color, highlights) {
                    highlights) +
     scale_x_continuous(labels=scales::label_comma(accuracy=1),
                        minor_breaks=NULL, limits=c(NA, xmax))
-}
-
-# Sliding average of new cases
-with_sliding_window = function(df, division_name, days) {
-  df %>% 
-    filter(NumDays >= 2*days) %>% 
-    group_by({{division_name}}) %>% 
-    arrange(Day) %>% 
-    mutate(Change=c(NA, diff(Count)),
-           Sliding=slide_dbl(Change, mean, .before=(days-1), .complete=TRUE))
 }
 
 # Chart of new cases vs day
@@ -210,7 +221,8 @@ totals_chart_base = function(df, division_name, last_date, min_cases) {
   theme(panel.grid=element_blank())
 }
 
-# Selected countries and states
+#### Selected countries and states ####
+
 selected_countries = c('China', 'United States', 'South Korea', 
              'Italy', 'Spain', 'France', 'United Kingdom')
 highlight_countries = c('United States', 'Japan')
@@ -221,7 +233,7 @@ highlight_states = c('New York', 'Massachusetts', 'Florida')
 
 highlight_counties = c('New York City, NY', 'Middlesex, MA')
 selected_counties = c(highlight_counties,
-                      'Suffolk, MA', 
+                      'Suffolk, MA', 'Lincoln, OR',
                       'Suffolk, NY', 'Westchester, NY',
                       'Wayne, MI', 'Cook, IL', 'Orleans, LA')
 
@@ -246,6 +258,7 @@ selected_item_base = function(df, selection, division_name) {
     theme(legend.position='none')
 }
 
+#### Chart helpers ####
 my_y_log10 = function() {
   scale_y_log10(labels=scales::label_comma(accuracy=1),
                 minor_breaks=NULL)
