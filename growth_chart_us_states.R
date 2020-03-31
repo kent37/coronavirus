@@ -37,8 +37,7 @@ daily_chart_us = new_cases_base(us_daily_df, State, 'darkred',
          '{state_window_str} day average of daily reported cases'),
        caption=covid_tracking_credit(last_date))
 
-new_vs_all_us_chart = new_vs_count_base(us_daily_df, State, 'darkred',
-                                     highlight_states) +
+new_vs_all_us_chart = new_vs_count_base(us_daily_df, State, 'darkred') +
   labs(x='Total reported cases', y='Daily new cases', 
        title='New reported cases vs all cases by US state',
        subtitle=str_glue(
@@ -46,12 +45,18 @@ new_vs_all_us_chart = new_vs_count_base(us_daily_df, State, 'darkred',
          'vs all cases, log-log scale'),
        caption=covid_tracking_credit(last_date))
 
+total_cases_us = by_state %>% 
+  filter(Date==ymd(last_date)) %>% 
+  pull(Count) %>% 
+  sum(na.rm=TRUE)
+
 growth_us_totals = totals_chart_base(by_state, State, 
                               last_date, min_state_cases) +
   labs(x='Reported cases (log scale)', y='',
        title='Reported coronavirus cases by US state',
        subtitle=str_glue(
-         'Showing states with {min_state_cases} or more cases'),
+         'Showing states with {min_state_cases} or more cases\n',
+         'US total cases: {scales::comma(total_cases_us)}'),
        caption=covid_tracking_credit(last_date)) 
 
 selected_states_base_plot = 

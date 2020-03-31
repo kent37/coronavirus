@@ -129,6 +129,7 @@ country_window = 5
 country_window_str = 'Five'
 state_window = 3
 state_window_str = 'Three'
+
 #### Charting code ####
 # Shared theme for everything
 theme_set(silgelib::theme_plex())
@@ -161,9 +162,11 @@ new_cases_base = function(sliding, division_name, color, highlights, days) {
 }
 
 # Chart of new cases vs total cases on log-log scale
-new_vs_count_base = function(df, division_name, color, highlights) {
+new_vs_count_base = function(df, division_name, color) {
+  # Highlight the single highest item only
+  highlight = df %>% ungroup() %>% top_n(1, Count) %>% pull({{division_name}})
   facet_chart_base(df, Count, Sliding, {{division_name}}, 
-                   color, highlights) +
+                   color, highlight) +
     scale_x_log10(labels=scales::label_number_si(),
                   minor_breaks=NULL)
  }

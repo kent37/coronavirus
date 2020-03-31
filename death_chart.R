@@ -3,7 +3,7 @@
 death = read_csv(here::here('data/time_series_covid19_deaths_global.csv'))
 
 min_death_cases = 20
-last_date = names(death) %>% tail(1)
+last_date = names(death) %>% tail(1) %>% mdy()
 death_by_country = death %>% clean_country(min_death_cases)
 
 # For each country, make a data series that
@@ -37,8 +37,8 @@ daily_deaths = new_cases_base(country_deaths_df, Country, 'darkred',
          '{country_window_str} day average of daily reported deaths'),
        caption=jhu_credit(last_date))
 
-new_vs_all_death_chart = new_vs_count_base(country_deaths_df, Country, 'darkred',
-                                     highlight_countries) +
+new_vs_all_death_chart = 
+  new_vs_count_base(country_deaths_df, Country, 'darkred') +
   labs(x='Total reported deaths', y='Daily deaths', 
        title='New deaths vs all deaths by country',
        subtitle=str_glue(
@@ -46,11 +46,17 @@ new_vs_all_death_chart = new_vs_count_base(country_deaths_df, Country, 'darkred'
          'vs all deaths, log-log scale'),
        caption=jhu_credit(last_date))
 
+total_deaths = death_by_country %>% 
+  filter(Date==last_date) %>% 
+  pull(Count) %>% 
+  sum(na.rm=TRUE)
+
 death_totals = totals_chart_base(death_by_country, Country,
                       last_date, min_death_cases) +
   labs(x='Reported deaths (log scale)', y='',
     title='Reported coronavirus deaths by country',
-    subtitle=str_glue('Showing countries with {min_death_cases} or more deaths'),
+    subtitle=str_glue('Showing countries with {min_death_cases} or more deaths\n',
+         'World total deaths: {scales::comma(total_deaths)}'),
     caption=jhu_credit(last_date)) 
 
 selected_death_base_plot = 

@@ -42,8 +42,8 @@ daily_growth_county = new_cases_base(county_growth_df, County_State, 'darkred',
          '{state_window_str} day average of daily reported cases'),
        caption=ny_times_credit(last_date))
 
-new_vs_all_county_chart = new_vs_count_base(county_growth_df, County_State, 'darkred',
-                                     highlight_counties) +
+new_vs_all_county_chart = 
+  new_vs_count_base(county_growth_df, County_State, 'darkred') +
   labs(x='Total reported cases', y='Daily new cases', 
        title='New reported cases vs all cases by US county',
        subtitle=str_glue(

@@ -2,7 +2,7 @@
 conf = read_csv(here::here('data/time_series_covid19_confirmed_global.csv'))
 
 min_country_cases = 100
-last_date = names(conf) %>% tail(1)
+last_date = names(conf) %>% tail(1) %>% mdy()
 by_country = conf %>% clean_country(min_country_cases)
 
 # For each country, make a data series that
@@ -36,8 +36,7 @@ daily_chart = new_cases_base(country_daily_df, Country, 'darkred',
          '{country_window_str} day average of daily reported cases'),
        caption=jhu_credit(last_date))
 
-new_vs_all_chart = new_vs_count_base(country_daily_df, Country, 'darkred',
-                                     highlight_countries) +
+new_vs_all_chart = new_vs_count_base(country_daily_df, Country, 'darkred') +
   labs(x='Total reported cases', y='Daily new cases', 
        title='New reported cases vs all cases by country',
        subtitle=str_glue(
@@ -45,12 +44,17 @@ new_vs_all_chart = new_vs_count_base(country_daily_df, Country, 'darkred',
          'vs all cases, log-log scale'),
        caption=jhu_credit(last_date))
 
+total_cases = by_country %>% 
+  filter(Date==last_date) %>% 
+  pull(Count) %>% 
+  sum(na.rm=TRUE)
 growth_total = totals_chart_base(by_country, Country, 
                                     last_date, min_country_cases) +
   labs(x='Reported cases (log scale)', y='',
        title='Reported coronavirus cases by country',
        subtitle=str_glue(
-         'Showing countries with {min_country_cases} or more cases'),
+         'Showing countries with {min_country_cases} or more cases\n',
+         'World total cases: {scales::comma(total_cases)}'),
        caption=jhu_credit(last_date))
 
 selected_country_base_plot = 

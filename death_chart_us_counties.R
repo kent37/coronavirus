@@ -45,8 +45,8 @@ daily_death_county = new_cases_base(county_death_df,
          '{state_window_str} day average of daily reported deaths'),
        caption=ny_times_credit(last_date))
 
-new_vs_all_county_death_chart = new_vs_count_base(county_death_df, County_State, 'darkred',
-                                     highlight_counties) +
+new_vs_all_county_death_chart = 
+  new_vs_count_base(county_death_df, County_State, 'darkred') +
   labs(x='Total reported deaths', y='Daily new deaths', 
        title='New reported deaths vs all deaths by US county',
        subtitle=str_glue(

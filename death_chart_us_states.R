@@ -38,8 +38,7 @@ daily_deaths_us = new_cases_base(us_death_df, State, 'darkred',
          '{state_window_str} day average of daily reported deaths'),
        caption=covid_tracking_credit(last_date))
 
-new_vs_all_deaths_us_chart = new_vs_count_base(us_death_df, State, 'darkred',
-                                     highlight_states) +
+new_vs_all_deaths_us_chart = new_vs_count_base(us_death_df, State, 'darkred') +
   labs(x='Total reported deaths', y='Daily new deaths', 
        title='New reported deaths vs all deaths by US state',
        subtitle=str_glue(
@@ -47,12 +46,18 @@ new_vs_all_deaths_us_chart = new_vs_count_base(us_death_df, State, 'darkred',
          'vs all deaths, log-log scale'),
        caption=covid_tracking_credit(last_date))
 
+total_deaths_us = death_by_state %>% 
+  filter(Date==ymd(last_date)) %>% 
+  pull(Count) %>% 
+  sum(na.rm=TRUE)
+
 death_us_totals = totals_chart_base(death_by_state, State, 
                                     last_date, min_death_cases) +
   labs(x='Reported deaths (log scale)', y='',
        title='Reported coronavirus deaths by US state',
        subtitle=str_glue(
-         'Showing states with {min_death_cases} or more deaths'),
+         'Showing states with {min_death_cases} or more deaths\n',
+         'US total deaths: {scales::comma(total_deaths_us)}'),
        caption=covid_tracking_credit(last_date))
 
 selected_us_death_base_plot = 
