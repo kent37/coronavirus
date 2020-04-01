@@ -58,10 +58,10 @@ growth_total = totals_chart_base(by_country, Country,
        caption=jhu_credit(last_date))
 
 selected_country_base_plot = 
-  selected_item_base(to_plot_country, selected_countries, Country) +
-  labs(x=case_chart_x(min_country_cases), y='Reported cases',
-       title='Cumulative reported coronavirus cases, selected countries',
-       subtitle=case_chart_subtitle(min_country_cases),
+  selected_item_base(country_daily_df, selected_countries, Country, Sliding) +
+  labs(x=case_chart_x(min_country_cases), y='Daily new cases',
+       title='Daily new reported coronavirus cases, selected countries',
+       subtitle=selected_daily_chart_subtitle(country_window_str, min_country_cases),
        caption=jhu_credit(last_date))
 
 selected_country_plot = selected_country_base_plot +

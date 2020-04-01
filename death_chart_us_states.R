@@ -61,9 +61,10 @@ death_us_totals = totals_chart_base(death_by_state, State,
        caption=covid_tracking_credit(last_date))
 
 selected_us_death_base_plot = 
-  selected_item_base(to_plot_us_death, selected_states, State) +
+  selected_item_base(us_death_df, selected_states, State, Sliding) +
   labs(x=death_chart_x(min_death_cases), y='Reported deaths',
-       title='Reported coronavirus deaths by US state',
+       subtitle=selected_death_chart_subtitle(state_window_str, min_death_cases),
+       title='Daily coronavirus deaths, selected US states',
        caption=covid_tracking_credit(last_date)) 
 
 selected_us_death_log_plot = selected_us_death_base_plot +

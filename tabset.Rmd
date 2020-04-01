@@ -35,10 +35,10 @@ if (!is.null(daily_plot)) {
   print(daily_plot)
 }
 
-if (!is.null(new_vs_all_plot)) {
-  cat('\n\n##### New vs All\n\n')
-  print(new_vs_all_plot)
-}
+# if (!is.null(new_vs_all_plot)) {
+#   cat('\n\n##### New vs All\n\n')
+#   print(new_vs_all_plot)
+# }
 
 ```
 

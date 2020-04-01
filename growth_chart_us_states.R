@@ -60,10 +60,10 @@ growth_us_totals = totals_chart_base(by_state, State,
        caption=covid_tracking_credit(last_date)) 
 
 selected_states_base_plot = 
-  selected_item_base(to_plot_us, selected_states, State) +
-    labs(x=case_chart_x(min_state_cases), y='Reported cases',
-       title='Coronavirus reported cases by state',
-       subtitle=case_chart_subtitle(min_state_cases),
+  selected_item_base(us_daily_df, selected_states, State, Sliding) +
+    labs(x=case_chart_x(min_state_cases), y='Daily new cases',
+       title='Daily reported cases, selected US states',
+       subtitle=selected_daily_chart_subtitle(state_window_str, min_state_cases),
        caption=covid_tracking_credit(last_date))
 
 selected_states_log_plot = selected_states_base_plot +

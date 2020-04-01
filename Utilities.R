@@ -240,7 +240,7 @@ selected_counties = c(highlight_counties,
                       'Suffolk, NY', 'Westchester, NY',
                       'Wayne, MI', 'Cook, IL', 'Orleans, LA')
 
-selected_item_base = function(df, selection, division_name) {
+selected_item_base = function(df, selection, division_name, y_name=quo(Count)) {
   selected_to_plot = df %>% 
     filter({{division_name}} %in% selection) %>% 
     group_by({{division_name}}) %>% 
@@ -252,7 +252,7 @@ selected_item_base = function(df, selection, division_name) {
   stopifnot(n_to_plot <= 12) # Too many items to color
   palette_name = if (n_to_plot <= 8) 'Dark2' else 'Paired'
   ggplot(selected_to_plot,
-         aes(Day, Count, color={{division_name}}, label=label)) +
+         aes(Day, {{y_name}}, color={{division_name}}, label=label)) +
     geom_line(size=1) +
     geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
                     segment.color = NA, size=3) +
@@ -272,6 +272,10 @@ case_chart_subtitle = function(min_cases) {
                          'by number of days since {min_cases}th case')
 }
 
+selected_daily_chart_subtitle = function(day_str, min_cases) {
+  str_glue('New reported coronavirus cases, {str_to_lower(day_str)} day average')
+}
+
 case_chart_x = function(min_cases) {
   str_glue('Number of days since {min_cases}th case')
 }
@@ -279,6 +283,10 @@ case_chart_x = function(min_cases) {
 death_chart_subtitle = function(min_cases) {
   str_glue('Cumulative number of deaths, ',
     'by number of days since {min_cases}th death')
+}
+
+selected_death_chart_subtitle = function(day_str, min_cases) {
+  str_glue('Number of new deaths, {str_to_lower(day_str)} day average')
 }
 
 death_chart_x = function(min_cases) {
