@@ -143,8 +143,8 @@ and the work of
 #### Credit
 
 - Data analysis and visualization by Kent Johnson 
-[\@kent3737](https://twitter.com/kent3737). 
-[fontawesome::fa('github')](https://github.com/kent37/coronavirus)
+[\@kent3737](https://twitter.com/kent3737)
+[GitHub](https://github.com/kent37/coronavirus)
 
 </big>
 
