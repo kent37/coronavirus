@@ -30,7 +30,7 @@ us_daily_df = to_plot_us %>%
   with_sliding_window(State, state_window)
 daily_chart_us = new_cases_base(us_daily_df, State, 'darkred', 
                              highlight_states, state_window) +
-  labs(x=case_chart_x(min_country_cases),
+  labs(x=case_chart_x(min_state_cases),
        y='Daily new cases',
        title='New reported cases by US state',
        subtitle=str_glue(
@@ -60,7 +60,7 @@ growth_us_totals = totals_chart_base(by_state, State,
        caption=covid_tracking_credit(last_date)) 
 
 selected_states_base_plot = 
-  selected_item_base(us_daily_df, selected_states, State, Sliding) +
+  selected_item_base(us_daily_df, selected_states, State, Day, Sliding) +
     labs(x=case_chart_x(min_state_cases), y='Daily new cases',
        title='Daily reported cases, selected US states',
        subtitle=selected_daily_chart_subtitle(state_window_str, min_state_cases),
@@ -71,3 +71,11 @@ selected_states_log_plot = selected_states_base_plot +
 
 selected_states_plot = selected_states_base_plot +
   scale_y_continuous(labels=scales::comma)
+
+selected_states_by_date = 
+  selected_item_base(us_daily_df, selected_states, State, Date, Sliding) +
+  labs(x='Date', y='Daily new cases',
+    title='Daily reported cases by date, selected US states',
+    subtitle=selected_daily_chart_subtitle(state_window_str, min_state_cases),
+    caption=covid_tracking_credit(last_date)) +
+  my_y_log10()

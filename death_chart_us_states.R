@@ -31,7 +31,7 @@ us_death_df = to_plot_us_death %>%
   with_sliding_window(State, state_window)
 daily_deaths_us = new_cases_base(us_death_df, State, 'darkred', 
                              highlight_states, state_window) +
-  labs(x=case_chart_x(min_country_cases),
+  labs(x=case_chart_x(min_state_cases),
        y='Daily deaths',
        title='Daily reported deaths by US state',
        subtitle=str_glue(
@@ -61,7 +61,7 @@ death_us_totals = totals_chart_base(death_by_state, State,
        caption=covid_tracking_credit(last_date))
 
 selected_us_death_base_plot = 
-  selected_item_base(us_death_df, selected_states, State, Sliding) +
+  selected_item_base(us_death_df, selected_states, State, Day, Sliding) +
   labs(x=death_chart_x(min_death_cases), y='Reported deaths',
        subtitle=selected_death_chart_subtitle(state_window_str, min_death_cases),
        title='Daily coronavirus deaths, selected US states',
@@ -72,3 +72,11 @@ selected_us_death_log_plot = selected_us_death_base_plot +
 
 selected_us_death_plot = selected_us_death_base_plot +
   scale_y_continuous(labels=scales::comma)
+
+selected_state_deaths_by_date = 
+  selected_item_base(us_death_df, selected_states, State, Date, Sliding) +
+  labs(x='Date', y='Daily new deaths',
+    title='Daily reported deaths by date, selected US states',
+       subtitle=selected_death_chart_subtitle(state_window_str, min_death_cases),
+    caption=covid_tracking_credit(last_date)) +
+  my_y_log10()

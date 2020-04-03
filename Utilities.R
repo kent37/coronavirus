@@ -87,21 +87,21 @@ read_and_clean_ny_times_counties = function() {
 # starts at min_cases cases
 by_day_since_min = function(df, division_name, min_cases) {
   df %>% 
+    filter(!is.na(Count)) %>% 
     group_nest({{division_name}}) %>% 
     mutate(data=map(data, to_day_series, min_cases)) %>% 
     unnest(data) %>% 
     group_by({{division_name}}) %>% 
-    mutate(NumDays=max(Day)) %>% 
+    mutate(NumDays=max(Day, na.rm=TRUE)) %>% 
     ungroup()
 }
 
 # Make a data series that
 # starts at min_cases cases
 to_day_series = function(df, min_cases) {
-  df %>% 
-    filter(Count >= min_cases) %>% 
-    select(-Date) %>% 
-    mutate(Day=row_number(Count))
+  df[df$Count >= min_cases,] %>% 
+    #filter(Count >= min_cases) %>% 
+  mutate(Day=row_number(Count))
 }
 
 # Order counties by state, then alpha
@@ -227,7 +227,7 @@ totals_chart_base = function(df, division_name, last_date, min_cases) {
 #### Selected countries and states ####
 
 selected_countries = c('China', 'United States', 'South Korea', 
-             'Italy', 'Spain', 'France', 'United Kingdom')
+             'Italy', 'Spain', 'France', 'United Kingdom', 'Germany')
 highlight_countries = c('United States', 'Japan')
 
 selected_states = c('New York', 'Massachusetts', 'California', 
@@ -240,11 +240,11 @@ selected_counties = c(highlight_counties,
                       'Suffolk, NY', 'Westchester, NY',
                       'Wayne, MI', 'Cook, IL', 'Orleans, LA')
 
-selected_item_base = function(df, selection, division_name, y_name=quo(Count)) {
+selected_item_base = function(df, selection, division_name, x_name, y_name) {
   selected_to_plot = df %>% 
     filter({{division_name}} %in% selection) %>% 
     group_by({{division_name}}) %>% 
-    mutate(label=if_else(Day==max(Day), 
+    mutate(label=if_else(Day==max(Day, na.rm=TRUE), 
                          as.character({{division_name}}), NA_character_))
 
   # Dark2 palette only has 8 colors, Paired has 12
@@ -252,7 +252,7 @@ selected_item_base = function(df, selection, division_name, y_name=quo(Count)) {
   stopifnot(n_to_plot <= 12) # Too many items to color
   palette_name = if (n_to_plot <= 8) 'Dark2' else 'Paired'
   ggplot(selected_to_plot,
-         aes(Day, {{y_name}}, color={{division_name}}, label=label)) +
+         aes({{x_name}}, {{y_name}}, color={{division_name}}, label=label)) +
     geom_line(size=1) +
     geom_text_repel(nudge_x = 1.1, nudge_y = 0.1, 
                     segment.color = NA, size=3) +
@@ -294,21 +294,21 @@ death_chart_x = function(min_cases) {
 }
 
 jhu_credit = function(last_date) {
-  str_glue('Source: Johns Hopkins CSSE as of {last_date}\n',
+  str_glue('Chart: @kent3737 | Data: Johns Hopkins CSSE as of {last_date}\n',
                         'https://github.com/CSSEGISandData/COVID-19')
 }
 
 covid_tracking_credit = function(last_date) {
-  str_glue('Source: COVID Tracking Project as of {last_date}\n',
+  str_glue('Chart: @kent3737 | Data: COVID Tracking Project as of {last_date}\n',
     'https://covidtracking.com/')
 }
 
 ny_times_credit = function(last_date) {
-  str_glue('Source: The New York Times as of {last_date}\n',
+  str_glue('Chart: @kent3737 | Data: The New York Times as of {last_date}\n',
     'https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html')
 }
 
 usafacts_credit = function(last_date) {
-  str_glue('Source: USAFacts as of {last_date}\n',
+  str_glue('Chart: @kent3737 | Data: USAFacts as of {last_date}\n',
     'https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/')
 }

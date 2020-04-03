@@ -58,7 +58,7 @@ growth_total = totals_chart_base(by_country, Country,
        caption=jhu_credit(last_date))
 
 selected_country_base_plot = 
-  selected_item_base(country_daily_df, selected_countries, Country, Sliding) +
+  selected_item_base(country_daily_df, selected_countries, Country, Day, Sliding) +
   labs(x=case_chart_x(min_country_cases), y='Daily new cases',
        title='Daily new reported coronavirus cases, selected countries',
        subtitle=selected_daily_chart_subtitle(country_window_str, min_country_cases),
@@ -68,4 +68,12 @@ selected_country_plot = selected_country_base_plot +
   scale_y_continuous(labels=scales::comma)
 
 selected_country_log_plot = selected_country_base_plot +
+  my_y_log10()
+
+selected_country_by_date = 
+  selected_item_base(country_daily_df, selected_countries, Country, Date, Sliding) +
+  labs(x='Date', y='Daily new cases',
+    title='Daily reported cases by date, selected countries',
+    subtitle=selected_daily_chart_subtitle(country_window_str, min_country_cases),
+    caption=jhu_credit(last_date)) +
   my_y_log10()

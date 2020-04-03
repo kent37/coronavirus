@@ -60,7 +60,7 @@ death_totals = totals_chart_base(death_by_country, Country,
     caption=jhu_credit(last_date)) 
 
 selected_death_base_plot = 
-  selected_item_base(country_deaths_df, selected_countries, Country, Sliding) +
+  selected_item_base(country_deaths_df, selected_countries, Country, Day, Sliding) +
   labs(x=death_chart_x(min_death_cases), y='New reported deaths',
        title='Daily coronavirus deaths, selected countries',
        subtitle=selected_death_chart_subtitle(country_window_str, min_death_cases),
@@ -70,4 +70,12 @@ selected_death_plot = selected_death_base_plot +
   scale_y_continuous(labels=scales::comma)
 
 selected_death_log_plot = selected_death_base_plot +
+  my_y_log10()
+
+selected_death_by_date = 
+  selected_item_base(country_deaths_df, selected_countries, Country, Date, Sliding) +
+  labs(x='Date', y='Daily new deaths',
+    title='Daily reported deaths by date, selected countries',
+    subtitle=selected_death_chart_subtitle(country_window_str, min_death_cases),
+    caption=jhu_credit(last_date)) +
   my_y_log10()

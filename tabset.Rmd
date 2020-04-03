@@ -23,10 +23,11 @@ print(linear_plot)
 print(log_plot)
 ```
 
-##### Growth
-
-```{r fig.height=nrows*2.2+0.5}
-print(growth_plot)
+```{r fig.height=6, fig.width=8, results='asis'}
+if (exists('daily_by_date') && !is.null(daily_by_date)) {
+  cat('\n\n###### By date\n\n')
+  print(daily_by_date)
+}
 ```
 
 ```{r fig.height=nrows_daily*2.2+0.5, results='asis'}
@@ -41,6 +42,13 @@ if (!is.null(daily_plot)) {
 # }
 
 ```
+
+##### Growth
+
+```{r fig.height=nrows*2.2+0.5}
+print(growth_plot)
+```
+
 
 ##### Totals
 

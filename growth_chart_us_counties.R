@@ -60,7 +60,7 @@ growth_county_totals = totals_chart_base(by_county, County_State,
        caption=ny_times_credit(last_date)) 
 
 selected_counties_base_plot = 
-  selected_item_base(county_growth_df, selected_counties, County_State, Sliding) +
+  selected_item_base(county_growth_df, selected_counties, County_State, Day, Sliding) +
     labs(x=case_chart_x(min_county_cases), y='Reported cases',
        title='Daily reported cases, selected US counties',
        subtitle=selected_daily_chart_subtitle(state_window_str, min_county_cases),
@@ -71,3 +71,11 @@ selected_counties_log_plot = selected_counties_base_plot +
 
 selected_counties_plot = selected_counties_base_plot +
   scale_y_continuous(labels=scales::comma)
+
+selected_counties_by_date = 
+  selected_item_base(county_growth_df, selected_counties, County_State, Date, Sliding) +
+  labs(x='Date', y='Daily new cases',
+    title='Daily reported cases by date, selected US counties',
+    subtitle=selected_daily_chart_subtitle(state_window_str, min_county_cases),
+    caption=ny_times_credit(last_date)) +
+  my_y_log10()
