@@ -35,7 +35,7 @@ county_growth_df = to_plot_county %>%
   with_sliding_window(County_State, state_window)
 daily_growth_county = new_cases_base(county_growth_df, County_State, 'darkred', 
                              highlight_counties, state_window) +
-  labs(x=case_chart_x(min_country_cases),
+  labs(x=case_chart_x(min_county_cases),
        y='Daily new cases',
        title='New reported cases by US county',
        subtitle=str_glue(

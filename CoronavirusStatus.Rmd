@@ -5,7 +5,8 @@ output: html_document
 ---
 
 ```{r parameters, echo=FALSE,include=FALSE,message=FALSE}
-knitr::opts_chunk$set(echo=FALSE,fig.width=10, fig.height=8, comment=NA, warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo=FALSE,fig.width=10, fig.height=8, 
+                      comment=NA, warning=FALSE, message=FALSE)
 source('Utilities.R')
 ```
 

@@ -121,7 +121,8 @@ with_sliding_window = function(df, division_name, days) {
     arrange(Day) %>% 
     mutate(Change=c(NA, diff(Count)),
            Sliding=slide_dbl(Change, mean, 
-                             .before=(days-1), .complete=TRUE))
+                             .before=(days-1), .complete=TRUE),
+           ChangeSliding=c(NA, diff(Sliding)))
 }
 
 # Sliding window sizes
