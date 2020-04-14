@@ -24,7 +24,7 @@ curl_download(deaths_url,
 #               here::here('data/covid_deaths_usafacts.csv'))
 
 # State-level data from Covid Tracking
-covid_tracking_url = 'http://covidtracking.com/api/states/daily.csv'
+covid_tracking_url = 'http://covidtracking.com/api/v1/states/daily.csv'
 curl_download(covid_tracking_url, 
               here::here('data/covid_tracking_daily.csv'))
 

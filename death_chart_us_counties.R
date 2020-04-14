@@ -38,7 +38,7 @@ county_death_df = to_plot_county_deaths %>%
 daily_death_county = new_cases_base(county_death_df, 
                                     County_State, 'darkred', 
                              highlight_counties, state_window) +
-  labs(x=case_chart_x(min_country_cases),
+  labs(x=case_chart_x(min_county_cases),
        y='Daily deaths',
        title='New reported deaths by US county',
        subtitle=str_glue(
