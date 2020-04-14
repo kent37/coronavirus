@@ -101,7 +101,7 @@ by_day_since_min = function(df, division_name, min_cases) {
 to_day_series = function(df, min_cases) {
   df[df$Count >= min_cases,] %>% 
     #filter(Count >= min_cases) %>% 
-  mutate(Day=row_number(Count))
+  mutate(Day=row_number(Date))
 }
 
 # Order counties by state, then alpha
