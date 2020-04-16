@@ -43,15 +43,16 @@ if (!is.null(daily_plot)) {
 
 ```
 
-##### Growth
-
-```{r fig.height=nrows*2.2+0.5}
-print(growth_plot)
+```{r fig.height=nrows*2.2+0.5, results='asis'}
+if (!is.null(growth_plot)) {
+  cat('\n\n##### Growth\n\n')
+  print(growth_plot)
+}
 ```
 
-
-##### Totals
-
-```{r fig.height=nrows*1.2+0.5}
-print(total_plot)
+```{r fig.height=nrows*1.2+0.5, results='asis'}
+if (!is.null(growth_plot)) {
+  cat('\n\n##### Totals\n\n')
+  print(total_plot)
+}
 ```

@@ -237,9 +237,9 @@ highlight_states = c('New York', 'Massachusetts', 'Florida')
 
 highlight_counties = c('New York City, NY', 'Middlesex, MA')
 selected_counties = c(highlight_counties,
-                      'Suffolk, MA', 'Lincoln, OR',
+                      'Suffolk, MA', 'Benton, OR',
                       'Suffolk, NY', 'Westchester, NY',
-                      'Wayne, MI', 'Cook, IL', 'Orleans, LA')
+                      'Sarasota, FL', 'Orleans, LA')
 
 selected_item_base = function(df, selection, division_name, x_name, y_name) {
   selected_to_plot = df %>% 

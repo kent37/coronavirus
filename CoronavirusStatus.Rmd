@@ -92,11 +92,11 @@ nrows = ceiling(length(unique(to_plot_county$County_State))/4)
 nrows_daily=ceiling(length(unique(county_growth_df$County_State))/4)
 linear_plot = selected_counties_plot
 log_plot = selected_counties_log_plot
-growth_plot = growth_chart_county
-daily_plot = daily_growth_county
+growth_plot = NULL
+daily_plot = NULL
 daily_by_date = selected_counties_by_date
-new_vs_all_plot = new_vs_all_county_chart
-total_plot = growth_county_totals
+new_vs_all_plot = NULL
+total_plot = NULL
 ```
 
 ```{r growth_counties_tab, child='tabset.Rmd'}
@@ -110,11 +110,11 @@ nrows = ceiling(length(unique(to_plot_county_deaths$County_State))/4)
 nrows_daily=ceiling(length(unique(county_death_df$County_State))/4)
 linear_plot = selected_counties_death_plot
 log_plot = selected_counties_death_log_plot
-growth_plot = death_chart_county
-daily_plot = daily_death_county
+growth_plot = NULL
+daily_plot = NULL
 daily_by_date = selected_counties_death_by_date
-new_vs_all_plot = new_vs_all_county_death_chart
-total_plot = death_county_totals
+new_vs_all_plot = NULL
+total_plot = NULL
 ```
 
 ```{r death_counties_tab, child='tabset.Rmd'}
